@@ -15,8 +15,9 @@ Sandboxer's containers and configuration live in that separate repository.
 - Composer 2.
 - A reachable HedgeDoc instance with notes that can be downloaded without signing in.
 
-Profundarium does not need a database, migrations, a queue worker, Node.js, or an
-asset build. CSS and fonts are served directly from `public/`.
+Rendering pages does not need a database, migrations, a queue worker, Node.js,
+or an asset build. The optional media commands require PostgreSQL access and
+PHP's `pdo_pgsql` extension. CSS and fonts are served directly from `public/`.
 
 ## Develop with Sandboxer
 
@@ -41,7 +42,8 @@ Open **http://laravel.localhost/profundarium** for the introduction. Create a no
 **http://hedgedoc.localhost**, make it publicly readable, then open
 `http://laravel.localhost/profundarium/<note-id>` using its HedgeDoc ID or alias.
 Sandboxer's other example applications and database services are independent of
-Profundarium; Profundarium itself does not use them.
+Profundarium; the optional media commands connect directly to a separately
+configured HedgeDoc PostgreSQL database.
 
 ## Configure the note source
 
@@ -141,7 +143,98 @@ docker compose exec -w /srv/sandboxer/laravel php composer test
 ```
 
 With local PHP, run `composer test` from this repository. Tests fake HedgeDoc HTTP
-responses and require neither a running HedgeDoc instance nor a database.
+responses; media tests use an isolated in-memory SQLite database and temporary
+uploads, so they also require `pdo_sqlite`. No live HedgeDoc data is changed.
+
+## Unused HedgeDoc images
+
+The optional `media:unused` and `media:cleanup` commands read **all** rows of
+HedgeDoc 1.x's quoted `Notes` table, including private and soft-deleted notes.
+Only current stored `content` is scanned; historical revisions are not included.
+The PostgreSQL connection uses a read-only, repeatable-read snapshot. The
+database account must have SELECT access to every note: do not use a role with
+row-level restrictions that hide private notes.
+
+Configure these variables in Profundarium's `.env`:
+
+```dotenv
+HEDGEDOC_PUBLIC_URL=https://notes.example.com
+HEDGEDOC_UPLOADS_PATH=/srv/hedgedoc/uploads
+HEDGEDOC_DB_HOST=database
+HEDGEDOC_DB_PORT=5432
+HEDGEDOC_DB_DATABASE=hedgedoc
+HEDGEDOC_DB_USERNAME=hedgedoc
+HEDGEDOC_DB_PASSWORD=your-database-password
+HEDGEDOC_DB_SCHEMA=public
+HEDGEDOC_DB_SSLMODE=prefer
+```
+
+`HEDGEDOC_PUBLIC_URL` is the public base URL (include any deployment subpath),
+independent of the internal HTTP fetch URL `HEDGEDOC_URL`. Files map to
+`<public-base>/uploads/<relative-file-path>`, matching HedgeDoc 1.x's filesystem
+upload backend. See [HedgeDoc configuration](https://docs.hedgedoc.org/configuration/).
+`HEDGEDOC_UPLOADS_PATH` must be an absolute directory accessible to the PHP
+process, with no symlinks or dot segments. Mount or share HedgeDoc's filesystem
+uploads at that location yourself; this application does not manage containers
+or mounts. Listing requires read/search permission throughout the tree;
+deletion requires write permission on the containing directories. Use a
+read-only mount when only listing. PostgreSQL must be reachable and `pdo_pgsql`
+installed (on Alpine, use the matching PHP package, for example
+`php85-pdo_pgsql` with PHP 8.5). Then run `php artisan config:clear`.
+
+```sh
+php artisan media:unused
+php artisan media:cleanup
+# Explicit unattended authorization:
+php artisan media:cleanup --no-interaction --force
+```
+
+Inside Sandboxer, prefix these commands with
+`docker compose exec -w /srv/sandboxer/laravel php` after configuring your local
+PHP image, uploads mount, and database access. These environment changes belong
+in your own local configuration.
+
+Example listing:
+
+```text
+Scanning HedgeDoc notes...
+Notes scanned: 248
+Images scanned: 137
+Unused images: 3
+Reclaimable: 6.4 MB
+https://notes.example.com/uploads/image-001.png
+https://notes.example.com/uploads/image-002.jpg
+https://notes.example.com/uploads/image-003.webp
+```
+
+**Cleanup permanently deletes files.** Review the URLs and back up uploads
+before answering the default-no confirmation. Non-interactive cleanup refuses
+deletion without `--force`. A fresh scan after confirmation skips files that
+became referenced or changed. Database, parsing, and enumeration failures abort
+cleanup; deletion failures return a nonzero status and identify failed URLs.
+Private note contents and database exception details are never printed.
+
+Markdown inline, full/collapsed/shortcut reference images, HedgeDoc size
+suffixes, HTML `img src`, and HTML `srcset` are parsed with the existing
+CommonMark and HTML parsers. Matching handles absolute, protocol-relative,
+root-relative, and base-relative upload URLs, percent encoding, queries, and
+fragments. Other hosts and code examples are ignored. Matching conservatively
+preserves same-host references using a different HTTP(S) scheme or port,
+including URLs stored before a reverse-proxy change. Recursive enumeration
+includes hidden files and recognizes these extensions (case-insensitively):
+jpg, jpeg, png, gif, webp, svg, avif, bmp, ico, tif, tiff, apng. Non-image
+extensions are left alone; this is extension-based classification, not MIME
+validation. Symlinks anywhere in the upload tree abort scanning.
+
+References generated by JavaScript, CSS background URLs, HTML `base` overrides,
+custom Markdown plugins, external host aliases/CDNs, and images used only by
+historical revisions or other applications are not detected. Unsaved edits in
+HedgeDoc's memory are not visible in PostgreSQL. Save notes and pause editing,
+uploads, and other filesystem writers while cleaning up: the database snapshot
+cannot make filesystem changes atomic, and a narrow race remains between final
+path validation and unlink. Do not run cleanup against directories writable by
+untrusted concurrent processes. Review `media:unused` first if notes use any of
+these unsupported reference forms.
 
 ## Repository contents
 
