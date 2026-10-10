@@ -4,11 +4,6 @@ Profundarium displays Markdown notes from HedgeDoc as HTML. It makes notes easie
 for search engines to index, cleaner to print, and easy to save as PDF using
 the browser's print menu.
 
-This repository contains the Laravel application only.
-[Sandboxer](https://github.com/Turbulentarius/sandboxer) provides the Docker
-Compose environment used to develop it, including PHP, Apache, and HedgeDoc.
-Sandboxer's containers and configuration live in that separate repository.
-
 ## Requirements
 
 - PHP 8.4.1 or newer, with DOM and the extensions required by Composer.
@@ -19,50 +14,37 @@ Rendering pages does not need a database, migrations, a queue worker, Node.js,
 or an asset build. The optional media commands require PostgreSQL access and
 PHP's `pdo_pgsql` extension. CSS and fonts are served directly from `public/`.
 
-## Develop with Sandboxer
-
-For a fresh checkout, clone Profundarium into Sandboxer's `www/laravel` directory
-**before** starting Sandboxer. Its setup service leaves existing applications alone.
-If that directory already contains the generated example or your own work, move
-it aside first; do not overwrite it.
+## Installation
 
 ```sh
-git clone https://github.com/Turbulentarius/sandboxer.git
-cd sandboxer
-git clone https://github.com/Turbulentarius/profundarium.git www/laravel
-docker compose up -d --build
-docker compose exec -w /srv/sandboxer/laravel php composer setup
+git clone https://github.com/beamtic/Profundarium.git
+cd Profundarium
+composer setup
 ```
 
 Run `composer setup` once for a new checkout: it installs dependencies, copies
 `.env.example` if `.env` is missing, and generates the application key.
 For subsequent dependency installs, use `composer install` instead.
 
-Open **http://laravel.localhost/profundarium** for the introduction. Create a note in
-**http://hedgedoc.localhost**, make it publicly readable, then open
-`http://laravel.localhost/profundarium/<note-id>` using its HedgeDoc ID or alias.
-Sandboxer's other example applications and database services are independent of
-Profundarium; the optional media commands connect directly to a separately
-configured HedgeDoc PostgreSQL database.
+Configure the note source below before starting the application.
 
 ## Configure the note source
 
-Edit the application's `.env` file (not Sandboxer's root `.env`):
+Edit the application's `.env` file:
 
 ```dotenv
 APP_NAME="Beamtic Profundarium"
-APP_URL=http://laravel.localhost
-HEDGEDOC_URL=http://hedgedoc:3000
+APP_URL=http://127.0.0.1:8000
+HEDGEDOC_URL=https://notes.example.com
 ```
 
-`HEDGEDOC_URL` is the HedgeDoc base URL reachable from the PHP process. The
-`hedgedoc:3000` hostname works on Sandboxer's internal Docker network. When
-running outside that network, set a reachable URL, for example
-`https://notes.example.com`. Profundarium fetches `<base-url>/<note-id>/download`.
+`HEDGEDOC_URL` is the HedgeDoc base URL reachable from the PHP process.
+Profundarium fetches `<base-url>/<note-id>/download`. Set it to your own
+HedgeDoc instance's public URL or a reachable internal URL.
 
 Note-link rewriting recognizes the incoming request's host automatically, as
 well as `HEDGEDOC_URL`. This supports a shared public hostname for HedgeDoc and
-Profundarium while fetching notes over Docker's internal network. The reverse
+Profundarium while fetching notes over a private network. The reverse
 proxy must preserve the public Host header (or supply forwarded host information
 through Laravel's configured trusted proxies). HTTP and HTTPS links are both
 recognized. A different public HedgeDoc hostname cannot be inferred from the
@@ -71,19 +53,17 @@ request; unrelated hosts are left unchanged.
 After changing settings, clear any cached configuration:
 
 ```sh
-docker compose exec -w /srv/sandboxer/laravel php php artisan config:clear
+php artisan config:clear
 ```
 
 Keep `.env` private. The repository includes only `.env.example`, without an
 application key or personal credentials.
 
-## Run without Sandboxer
+## Run locally
 
-From the application directory, with PHP and Composer installed:
+From the application directory, after configuring `.env`:
 
 ```sh
-composer setup
-# Set HEDGEDOC_URL and APP_URL in .env for your environment.
 php artisan serve
 ```
 
@@ -98,8 +78,8 @@ CSS and fonts live in `public/profundarium/assets/css/` and
 `/profundarium/assets/css/notes.css`, so HTTPS pages also load assets over HTTPS.
 Relative font URLs resolve under the same asset prefix.
 
-Sandboxer's Apache and `php artisan serve` serve these files directly from
-`public/`, without aliases. For Nginx serving the public directory at
+`php artisan serve` serves these files directly from `public/`, without aliases.
+For Nginx serving the public directory at
 `/srv/profundarium/public`, use:
 
 ```nginx
@@ -136,14 +116,13 @@ To print or save a note as PDF, use your browser's print menu.
 
 ## Tests
 
-Inside Sandboxer, run from its repository root:
+Run from the application directory:
 
 ```sh
-docker compose exec -w /srv/sandboxer/laravel php composer test
+composer test
 ```
 
-With local PHP, run `composer test` from this repository. Tests fake HedgeDoc HTTP
-responses; media tests use an isolated in-memory SQLite database and temporary
+Tests fake HedgeDoc HTTP responses; media tests use an isolated in-memory SQLite database and temporary
 uploads, so they also require `pdo_sqlite`. No live HedgeDoc data is changed.
 
 ## Unused HedgeDoc images
@@ -188,11 +167,6 @@ php artisan media:cleanup
 # Explicit unattended authorization:
 php artisan media:cleanup --no-interaction --force
 ```
-
-Inside Sandboxer, prefix these commands with
-`docker compose exec -w /srv/sandboxer/laravel php` after configuring your local
-PHP image, uploads mount, and database access. These environment changes belong
-in your own local configuration.
 
 Example listing:
 
@@ -240,7 +214,7 @@ these unsupported reference forms.
 
 Application code, static assets, configuration templates, tests, and
 `composer.lock` are versioned. Installed dependencies, local environment files,
-databases, logs, caches, and Sandboxer's development environment are excluded.
+databases, logs, and caches are excluded.
 
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the adapted HedgeDoc CSS,
 Roboto fonts, and dependency licenses. The Laravel skeleton's generic project
