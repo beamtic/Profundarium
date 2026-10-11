@@ -14,6 +14,22 @@ use Tests\TestCase;
 
 class UnusedMediaTest extends TestCase
 {
+    public function test_bare_http_image_placeholders_are_silently_ignored(): void
+    {
+        \Illuminate\Support\Facades\Log::shouldReceive('warning')->never();
+        $this->image('used.png');
+        $this->image('unused.png');
+        $this->note('![](https://)[](https://)![](https://)');
+        $this->note('![](http://) ![](HTTPS://) ![used](/uploads/used.png)');
+
+        $scan = app(UnusedMedia::class)->scan();
+        $this->assertSame(2, $scan->notes);
+        $this->assertSame(['unused.png'], array_keys($scan->unused));
+        $this->artisan('media:cleanup', ['--force' => true])->assertSuccessful();
+        $this->assertFileExists($this->uploads . '/used.png');
+        $this->assertFileDoesNotExist($this->uploads . '/unused.png');
+    }
+
     public function test_rejected_image_reference_is_logged_and_cleanup_remains_blocked(): void
     {
         $url = 'http://notes.example.test:invalid/uploads/image.png';

@@ -57,6 +57,10 @@ class ImageReferences
         if ($url === '' || str_starts_with($url, '#')) {
             return null;
         }
+        // Unfinished image placeholders cannot identify an uploaded file.
+        if (in_array(strtolower($url), ['http://', 'https://'], true)) {
+            return null;
+        }
         $base = parse_url($baseUrl);
         $parts = parse_url(str_starts_with($url, '//') ? $base['scheme'] . ':' . $url : $url);
         if ($parts === false) {

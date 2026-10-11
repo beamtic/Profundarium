@@ -213,8 +213,9 @@ deletion without `--force`. A fresh scan after confirmation skips files that
 became referenced or changed. Database, parsing, and enumeration failures abort
 cleanup; deletion failures return a nonzero status and identify failed URLs.
 Private note contents and database exception details are never printed.
-Rejected image references are logged at warning level through Laravel's configured
-logging channel. With the `single` channel, inspect `storage/logs/laravel.log`.
+Bare `http://` and `https://` image placeholders are ignored silently because
+they cannot reference an uploaded file. Other rejected image references are
+logged at warning level through Laravel's configured logging channel. With the `single` channel, inspect `storage/logs/laravel.log`.
 The log includes the note ID, public note URL, and extracted image URL for debugging; keep logs private because URLs
 can contain private paths or tokens.
 
