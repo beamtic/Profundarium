@@ -128,7 +128,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
         array_unique($linkSources),
     )) . ')';
     $noteLinkPattern = '~^(?:(?:(?:https?:)?' . $sourceUrlPattern . ')?/?s/([A-Za-z0-9_-]+)'
-        . '|(?:https?:)?' . $sourceUrlPattern . '/([A-Za-z0-9_-]{16,}))([?#].*)?$~i';
+        . '|(?:https?:)?' . $sourceUrlPattern . '/([A-Za-z0-9_-]+))([?#].*)?$~i';
     foreach ($document->getElementsByTagName('a') as $link) {
         $href = $link->getAttribute('href');
         if (preg_match($noteLinkPattern, $href, $match)) {
