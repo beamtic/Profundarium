@@ -1,6 +1,7 @@
 <?php
 
 use App\Markdown\SizedImageExtension;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,50 @@ use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 
 Route::get('/profundarium/{note?}', function (Request $request, ?string $note = null) {
     $hedgedocUrl = rtrim(config('services.hedgedoc.url'), '/');
+    $lastModified = null;
+
+    $readModificationTime = function (mixed $updatedAt): ?int {
+        if (!is_string($updatedAt) || !preg_match('/^\d{4}-\d{2}-\d{2}T/', $updatedAt)) {
+            return null;
+        }
+
+        try {
+            $date = new \DateTimeImmutable($updatedAt);
+        } catch (\DateMalformedStringException $exception) {
+            return null;
+        }
+
+        $errors = \DateTimeImmutable::getLastErrors();
+        if ($errors !== false && ($errors['warning_count'] !== 0 || $errors['error_count'] !== 0)) {
+            return null;
+        }
+
+        // HTTP modification dates must not be later than the response date.
+        return min($date->getTimestamp(), time());
+    };
+
+    if ($request->isMethod('HEAD') && $note !== null) {
+        try {
+            $info = Http::acceptJson()->connectTimeout(2)->timeout(3)
+                ->get("{$hedgedocUrl}/{$note}/info");
+        } catch (ConnectionException $exception) {
+            return response('', 502);
+        }
+
+        // HedgeDoc can redirect inaccessible notes to an HTML login page.
+        if (!$info->successful() || !is_array($info->json())) {
+            return response('', $info->serverError() ? 502 : 404);
+        }
+
+        $response = response('', 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+        $lastModified = $readModificationTime($info->json('updatetime'));
+        if ($lastModified !== null) {
+            $response->setLastModified(new \DateTimeImmutable('@' . $lastModified));
+        }
+
+        // /info does not expose the Markdown's robots directive.
+        return $response;
+    }
 
     if ($note === null) {
         $path = resource_path('notes/default.md');
@@ -30,6 +75,15 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
             abort_unless($response->successful(), 404);
             $markdown = $response->body();
             $status = 200;
+
+            // Metadata is optional: an unavailable info endpoint must not hide the note.
+            try {
+                $info = Http::acceptJson()->connectTimeout(2)->timeout(3)
+                    ->get("{$hedgedocUrl}/{$note}/info");
+                $lastModified = $readModificationTime($info->successful() ? $info->json('updatetime') : null);
+            } catch (ConnectionException $exception) {
+                // Serve the content without a modification date when metadata cannot be used.
+            }
         }
     }
 
@@ -43,6 +97,13 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
         }
 
         $markdown = substr($markdown, strlen($frontMatter[0]));
+    }
+
+    if ($request->isMethod('HEAD')) {
+        return response('', 200, [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'X-Robots-Tag' => $robots ?? 'noindex, nofollow',
+        ]);
     }
 
     $html = Str::markdown($markdown, [
@@ -148,6 +209,10 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
     ], $status ?? 200);
 
     $response->header('X-Robots-Tag', $robots ?? 'noindex, nofollow');
+
+    if ($lastModified !== null) {
+        $response->setLastModified(new \DateTimeImmutable('@' . $lastModified));
+    }
 
     return $response;
 });
