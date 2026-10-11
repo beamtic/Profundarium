@@ -215,7 +215,7 @@ cleanup; deletion failures return a nonzero status and identify failed URLs.
 Private note contents and database exception details are never printed.
 Rejected image references are logged at warning level through Laravel's configured
 logging channel. With the `single` channel, inspect `storage/logs/laravel.log`.
-The log includes the extracted URL for debugging; keep logs private because URLs
+The log includes the note ID and extracted URL for debugging; keep logs private because URLs
 can contain private paths or tokens.
 
 Markdown inline, full/collapsed/shortcut reference images, HedgeDoc size

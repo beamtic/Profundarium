@@ -19,11 +19,11 @@ class NoteReader
 
             $count = 0;
             // Query the physical table: no permission or soft-deletion scopes.
-            foreach ($connection->table('Notes')->select('content')->cursor() as $note) {
+            foreach ($connection->table('Notes')->select('id', 'content')->cursor() as $note) {
                 if ($note->content !== null && ! is_string($note->content)) {
                     throw new MediaException('Invalid note content.');
                 }
-                $consume($note->content ?? '');
+                $consume($note->content ?? '', (string) $note->id);
                 $count++;
             }
 

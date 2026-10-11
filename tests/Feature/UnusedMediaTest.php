@@ -19,7 +19,7 @@ class UnusedMediaTest extends TestCase
         $url = 'http://notes.example.test:invalid/uploads/image.png';
         \Illuminate\Support\Facades\Log::shouldReceive('warning')->once()->with(
             'Media scan could not parse an image reference.',
-            ['reference' => $url],
+            ['note_id' => '1', 'reference' => $url],
         );
         $this->image('keep.png');
         $this->note('<img src="' . $url . '">');
