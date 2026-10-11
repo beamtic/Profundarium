@@ -19,10 +19,11 @@ class UnusedMediaTest extends TestCase
         $url = 'http://notes.example.test:invalid/uploads/image.png';
         \Illuminate\Support\Facades\Log::shouldReceive('warning')->once()->with(
             'Media scan could not parse an image reference.',
-            ['note_id' => '1', 'reference' => $url],
+            ['note_id' => '1', 'note_url' => 'https://notes.example.test/s/test-slug', 'reference' => $url],
         );
         $this->image('keep.png');
         $this->note('<img src="' . $url . '">');
+        DB::connection('hedgedoc')->table('Notes')->where('id', 1)->update(['shortid' => 'test-slug']);
         $this->artisan('media:cleanup', ['--force' => true])
             ->doesntExpectOutputToContain($url)->assertFailed();
         $this->assertFileExists($this->uploads . '/keep.png');
@@ -43,6 +44,8 @@ class UnusedMediaTest extends TestCase
         DB::purge('hedgedoc');
         Schema::connection('hedgedoc')->create('Notes', function ($table): void {
             $table->id();
+            $table->string('shortid')->nullable();
+            $table->string('alias')->nullable();
             $table->text('content')->nullable();
             $table->string('permission')->default('private');
             $table->timestamp('deletedAt')->nullable();

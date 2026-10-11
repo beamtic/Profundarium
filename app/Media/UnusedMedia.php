@@ -38,8 +38,10 @@ class UnusedMedia
         // Enumerate first so new uploads during the note snapshot are not candidates.
         $images = $this->images($root);
         $used = [];
-        $count = $this->notes->each(function (string $content, ?string $noteId = null) use (&$used, $baseUrl): void {
-            $used += $this->references->extract($content, $baseUrl, $noteId);
+        $count = $this->notes->each(function (string $content, ?string $noteId = null, ?string $shortid = null, ?string $alias = null) use (&$used, $baseUrl): void {
+            $used += $this->references->extract($content, $baseUrl, $noteId,
+                $shortid ? $baseUrl . '/s/' . rawurlencode($shortid)
+                    : ($alias ? $baseUrl . '/' . rawurlencode($alias) : null));
         });
 
         return new MediaScan($root, $baseUrl, $count, count($images), array_diff_key($images, $used));

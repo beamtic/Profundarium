@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class ImageReferences
 {
-    public function extract(string $markdown, string $baseUrl, ?string $noteId = null): array
+    public function extract(string $markdown, string $baseUrl, ?string $noteId = null, ?string $noteUrl = null): array
     {
         if (! mb_check_encoding($markdown, 'UTF-8')) {
             throw new MediaException('A note is not valid UTF-8; scanning aborted.');
@@ -41,7 +41,7 @@ class ImageReferences
                 }
             }
             foreach ($urls as $url) {
-                $path = $this->normalize($url, $baseUrl, $noteId);
+                $path = $this->normalize($url, $baseUrl, $noteId, $noteUrl);
                 if ($path !== null) {
                     $references[$path] = true;
                 }
@@ -51,7 +51,7 @@ class ImageReferences
         return $references;
     }
 
-    public function normalize(string $url, string $baseUrl, ?string $noteId = null): ?string
+    public function normalize(string $url, string $baseUrl, ?string $noteId = null, ?string $noteUrl = null): ?string
     {
         $url = trim($url);
         if ($url === '' || str_starts_with($url, '#')) {
@@ -60,7 +60,7 @@ class ImageReferences
         $base = parse_url($baseUrl);
         $parts = parse_url(str_starts_with($url, '//') ? $base['scheme'] . ':' . $url : $url);
         if ($parts === false) {
-            Log::warning('Media scan could not parse an image reference.', ['note_id' => $noteId, 'reference' => $url]);
+            Log::warning('Media scan could not parse an image reference.', ['note_id' => $noteId, 'note_url' => $noteUrl, 'reference' => $url]);
             throw new MediaException('Cannot parse an image reference; cleanup aborted.');
         }
         if (isset($parts['scheme']) && ! in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {
