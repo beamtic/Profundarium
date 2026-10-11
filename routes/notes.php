@@ -32,29 +32,6 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
         return min($date->getTimestamp(), time());
     };
 
-    if ($request->isMethod('HEAD') && $note !== null) {
-        try {
-            $info = Http::acceptJson()->connectTimeout(2)->timeout(3)
-                ->get("{$hedgedocUrl}/{$note}/info");
-        } catch (ConnectionException $exception) {
-            return response('', 502);
-        }
-
-        // HedgeDoc can redirect inaccessible notes to an HTML login page.
-        if (!$info->successful() || !is_array($info->json())) {
-            return response('', $info->serverError() ? 502 : 404);
-        }
-
-        $response = response('', 200, ['Content-Type' => 'text/html; charset=UTF-8']);
-        $lastModified = $readModificationTime($info->json('updatetime'));
-        if ($lastModified !== null) {
-            $response->setLastModified(new \DateTimeImmutable('@' . $lastModified));
-        }
-
-        // /info does not expose the Markdown's robots directive.
-        return $response;
-    }
-
     if ($note === null) {
         $path = resource_path('notes/default.md');
         abort_unless(is_readable($path), 404);
@@ -100,10 +77,15 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
     }
 
     if ($request->isMethod('HEAD')) {
-        return response('', 200, [
+        $response = response('', $status ?? 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
             'X-Robots-Tag' => $robots ?? 'noindex, nofollow',
         ]);
+        if ($lastModified !== null) {
+            $response->setLastModified(new \DateTimeImmutable('@' . $lastModified));
+        }
+
+        return $response;
     }
 
     $html = Str::markdown($markdown, [
