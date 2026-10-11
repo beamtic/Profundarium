@@ -5,6 +5,7 @@ namespace App\Media;
 use App\Markdown\SizedImageExtension;
 use Dom\HTMLDocument;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ImageReferences
 {
@@ -59,6 +60,7 @@ class ImageReferences
         $base = parse_url($baseUrl);
         $parts = parse_url(str_starts_with($url, '//') ? $base['scheme'] . ':' . $url : $url);
         if ($parts === false) {
+            Log::warning('Media scan could not parse an image reference.', ['reference' => $url]);
             throw new MediaException('Cannot parse an image reference; cleanup aborted.');
         }
         if (isset($parts['scheme']) && ! in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {

@@ -14,6 +14,20 @@ use Tests\TestCase;
 
 class UnusedMediaTest extends TestCase
 {
+    public function test_rejected_image_reference_is_logged_and_cleanup_remains_blocked(): void
+    {
+        $url = 'http://notes.example.test:invalid/uploads/image.png';
+        \Illuminate\Support\Facades\Log::shouldReceive('warning')->once()->with(
+            'Media scan could not parse an image reference.',
+            ['reference' => $url],
+        );
+        $this->image('keep.png');
+        $this->note('<img src="' . $url . '">');
+        $this->artisan('media:cleanup', ['--force' => true])
+            ->doesntExpectOutputToContain($url)->assertFailed();
+        $this->assertFileExists($this->uploads . '/keep.png');
+    }
+
     private string $uploads;
 
     protected function setUp(): void

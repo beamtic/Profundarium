@@ -213,6 +213,10 @@ deletion without `--force`. A fresh scan after confirmation skips files that
 became referenced or changed. Database, parsing, and enumeration failures abort
 cleanup; deletion failures return a nonzero status and identify failed URLs.
 Private note contents and database exception details are never printed.
+Rejected image references are logged at warning level through Laravel's configured
+logging channel. With the `single` channel, inspect `storage/logs/laravel.log`.
+The log includes the extracted URL for debugging; keep logs private because URLs
+can contain private paths or tokens.
 
 Markdown inline, full/collapsed/shortcut reference images, HedgeDoc size
 suffixes, HTML `img src`, and HTML `srcset` are parsed with the existing
