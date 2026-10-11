@@ -2,6 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "turbulentarius/profundarium",
     "type": "project",
+    "license": "GPL-3.0-or-later",
     "description": "Render HedgeDoc Markdown notes as HTML for reading, printing, and browser PDF export.",
     "keywords": [
         "hedgedoc",

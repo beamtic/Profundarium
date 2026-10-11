@@ -1,5 +1,9 @@
 # Third-party notices
 
+Original Profundarium code is licensed under GPL-3.0-or-later; see
+[LICENSE](LICENSE) and the README's license section. This grant does not
+relicense the third-party material listed below.
+
 ## HedgeDoc
 
 Parts of `public/profundarium/assets/css/notes.css` adapt the TOC rules from HedgeDoc's

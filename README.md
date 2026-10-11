@@ -247,7 +247,20 @@ Application code, static assets, configuration templates, tests, and
 `composer.lock` are versioned. Installed dependencies, local environment files,
 databases, logs, caches, and Sandboxer's development environment are excluded.
 
-See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the adapted HedgeDoc CSS,
-Roboto fonts, and dependency licenses. The Laravel skeleton's generic project
-license declaration has been removed; those third-party notices do not assign a
-license to original Profundarium code.
+## License
+
+Original Profundarium code is copyright (C) 2026 Jacob and licensed under
+**GPL-3.0-or-later**.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See [LICENSE](LICENSE) for the GNU General Public License.
+
+This grant applies to original Profundarium code, not to third-party material.
+The adapted HedgeDoc CSS retains its AGPL-3.0 terms, Roboto retains OFL-1.1,
+and Composer dependencies retain their respective licenses. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and license details.
