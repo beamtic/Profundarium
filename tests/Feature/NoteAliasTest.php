@@ -5,6 +5,11 @@
  * the note alias, for both GET and HEAD, with query parameters preserved.
  * Also checks that alias URLs and notes without aliases render successfully.
  * HedgeDoc downloads and redirects are simulated; no real notes are changed.
+ *
+ * Fake responses reproduce alias and non-alias redirect chains reliably
+ * without requiring a live HedgeDoc server or notes with specific IDs and
+ * aliases. They test Profundarium's redirect handling; an integration check
+ * against real HedgeDoc is needed to verify the assumed redirect behavior.
  */
 
 namespace Tests\Feature;
