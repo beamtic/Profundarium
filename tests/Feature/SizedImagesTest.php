@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Verifies rendering of HedgeDoc image size suffixes with width, height, or
+ * both dimensions, including pasted image syntax and ordinary images. Checks
+ * that Unicode, quotes, and ampersands survive in alternative text and that
+ * image syntax inside inline and fenced code remains text rather than images.
+ */
+
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Http;
@@ -34,8 +41,10 @@ MD, 200, ['Content-Type' => 'text/markdown'])]);
 
         $response = $this->get('/profundarium/images');
         $response->assertOk();
+        // DOM attributes let us check dimensions and decoded alt text independently of serialization.
         $document = \Dom\HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR, 'UTF-8');
         $images = $document->getElementsByTagName('img');
+        // The two code examples must not add image elements to the seven real images.
         $this->assertCount(7, $images);
         $this->assertSame('MAGA kid turning and twisting bricks for his brick sorter', $images[0]->getAttribute('alt'));
         $this->assertSame('380', $images[0]->getAttribute('width'));
