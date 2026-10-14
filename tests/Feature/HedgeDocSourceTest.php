@@ -6,6 +6,11 @@
  * relative, and raw HTML note links point to Profundarium while preserving query
  * strings and fragments. External hosts, lookalike hosts, assets, and local
  * fragments must stay unchanged, including when the public and internal hosts differ.
+ *
+ * HedgeDoc HTTP responses are faked so source URLs and link formats can be
+ * controlled without depending on a running server, its network availability,
+ * or its note contents. These tests verify Profundarium handles the supplied
+ * responses; they do not verify a real HedgeDoc server produces them.
  */
 
 namespace Tests\Feature;
