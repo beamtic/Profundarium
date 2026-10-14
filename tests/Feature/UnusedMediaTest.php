@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * Verifies upload reference extraction, unused-image reporting, and cleanup
+ * using an isolated temporary upload directory and an in-memory SQLite database.
+ * Covers Markdown and HTML references, all note permissions, soft-deleted notes,
+ * URL normalization, counts, sizes, confirmation, and noninteractive cleanup.
+ * Checks that used or changed files survive and that unsafe paths, symlinks,
+ * scan failures, and deletion failures block or report cleanup appropriately.
+ * These tests create and delete only their own fixtures, not live HedgeDoc data.
+ */
+
 namespace Tests\Feature;
 
 use App\Media\ImageReferences;
@@ -50,6 +60,7 @@ class UnusedMediaTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Each test owns a unique directory, keeping destructive cleanup away from real uploads.
         $this->uploads = sys_get_temp_dir() . '/profundarium-media-' . bin2hex(random_bytes(8));
         mkdir($this->uploads);
         config([
@@ -57,6 +68,7 @@ class UnusedMediaTest extends TestCase
             'services.hedgedoc.uploads_path' => $this->uploads,
             'database.connections.hedgedoc' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
         ]);
+        // Discard cached connections so the configured in-memory fixture database takes effect.
         DB::purge('hedgedoc');
         Schema::connection('hedgedoc')->create('Notes', function ($table): void {
             $table->id();
@@ -78,6 +90,7 @@ class UnusedMediaTest extends TestCase
     private function image(string $path): void
     {
         (new Filesystem())->ensureDirectoryExists(dirname($this->uploads . '/' . $path));
+        // Scanning uses filenames and file metadata; actual image bytes are unnecessary.
         file_put_contents($this->uploads . '/' . $path, 'isolated image fixture');
     }
 
@@ -102,6 +115,7 @@ class UnusedMediaTest extends TestCase
         $this->assertSame(4, $scan->notes);
         $this->assertSame(5, $scan->images);
         $this->assertSame(['nested/unused.webp', 'unused.png'], array_keys($scan->unused));
+        // Two unused files each contain the 22-byte fixture string.
         $this->assertSame(44, $scan->bytes());
     }
 
@@ -186,7 +200,9 @@ MD);
         $reader->shouldReceive('each')->once()->andThrow(new RuntimeException('PRIVATE CONTENT'));
         $this->artisan('media:cleanup', ['--force' => true])
             ->doesntExpectOutputToContain('PRIVATE CONTENT')->assertFailed();
+        // Remove the failing reader mock so the next check exercises real parsing.
         $this->app->forgetInstance(NoteReader::class);
+        // Inject an invalid byte to verify parsing failure prevents deletion.
         $this->note("invalid UTF-8 \xff");
         $this->artisan('media:cleanup', ['--force' => true])->assertFailed();
         $this->assertFileExists($this->uploads . '/keep.png');
@@ -232,6 +248,7 @@ MD);
         $this->image('changed.png');
         $media = app(UnusedMedia::class);
         $scan = $media->scan();
+        // Change both references and file contents after the initial scan to simulate a confirmation delay.
         $this->note('![new reference](/uploads/now-used.png)');
         file_put_contents($this->uploads . '/changed.png', 'changed data');
         $this->assertSame(['changed.png' => false, 'now-used.png' => false], $media->delete($scan));
@@ -242,6 +259,7 @@ MD);
     public function test_deletion_failure_is_reported(): void
     {
         $this->image('unused.png');
+        // A partial mock keeps normal filesystem behavior except for the explicitly mocked operation.
         $files = \Mockery::mock(Filesystem::class)->makePartial();
         $files->shouldReceive('delete')->once()->andReturn(false);
         $this->app->instance(UnusedMedia::class, new UnusedMedia(new NoteReader(), new ImageReferences(), $files));
@@ -261,6 +279,7 @@ MD);
     public function test_failure_after_processing_some_notes_aborts_without_deleting(): void
     {
         $this->image('keep.png');
+        // Fail after delivering one note to ensure a partial scan never authorizes cleanup.
         $this->app->instance(NoteReader::class, new class extends NoteReader {
             public function each(callable $consume): int
             {
@@ -303,6 +322,7 @@ MD);
         $this->image('keep.png');
         $media = app(UnusedMedia::class);
         $scan = $media->scan();
+        // Deletion must rescan after confirmation; removing the table makes that rescan fail.
         Schema::connection('hedgedoc')->drop('Notes');
         try {
             $media->delete($scan);
