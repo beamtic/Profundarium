@@ -5,6 +5,11 @@
  * working application database and without setting session cookies. The
  * introduction must make no HedgeDoc requests; remote downloads are simulated
  * and must produce the expected page title.
+ *
+ * Remote HTTP responses are faked so database and session independence can be
+ * checked without a running HedgeDoc server. Unavailable optional endpoints
+ * are simulated deliberately to verify rendering still works. The introduction
+ * is checked with HTTP requests forbidden, proving it needs no remote source.
  */
 
 namespace Tests\Feature;
