@@ -4,6 +4,11 @@
  * Verifies that raw style elements before and after Markdown content survive
  * HTML parsing and note-link rewriting. Also checks that rewritten links keep
  * query strings and fragments and that headings receive their expected IDs.
+ *
+ * The download response is faked to supply exact style and link markup without
+ * creating or editing a real HedgeDoc note. This isolates HTML preservation
+ * from network failures and changes to server data; it does not test live
+ * HedgeDoc downloads.
  */
 
 namespace Tests\Feature;
