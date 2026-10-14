@@ -7,6 +7,15 @@ use Tests\TestCase;
 
 class StatelessNotesTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Http::fake([
+            '*/publish' => Http::response('', 404),
+            '*/info' => Http::response('', 404),
+        ]);
+    }
+
     public function test_introduction_needs_no_hedgedoc_database_or_session(): void
     {
         Http::preventStrayRequests();

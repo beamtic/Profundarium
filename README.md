@@ -117,6 +117,9 @@ that path (read-only is sufficient). Replace any previous asset alias to
 
 - `/profundarium` renders the bundled introduction in `resources/notes/default.md`.
 - `/profundarium/<note-id>` renders a note from the configured HedgeDoc instance.
+  Notes with an alias redirect ID and short-ID URLs to `/profundarium/<alias>`
+  with HTTP 302, preserving query parameters. Alias discovery uses HedgeDoc's
+  HTTP redirects; if unavailable, the requested note still renders.
 - `/up` is Laravel's application health endpoint; it does not check HedgeDoc.
 
 The first H1 supplies the page title. Links in the form `/s/<note-id>` and

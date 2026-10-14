@@ -7,6 +7,15 @@ use Tests\TestCase;
 
 class HedgeDocSourceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Http::fake([
+            '*/publish' => Http::response('', 404),
+            '*/info' => Http::response('', 404),
+        ]);
+    }
+
     public function test_notes_use_the_configured_source_and_rewrite_its_links(): void
     {
         config(['services.hedgedoc.url' => 'https://notes.example.test/wiki/']);

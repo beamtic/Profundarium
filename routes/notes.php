@@ -53,6 +53,32 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
             $markdown = $response->body();
             $status = 200;
 
+            // A named alias is shared by the published and editor URLs. Without
+            // an alias, those URLs use different IDs (short ID and encoded UUID).
+            try {
+                $published = Http::withoutRedirecting()->connectTimeout(2)->timeout(3)
+                    ->get("{$hedgedocUrl}/{$note}/publish");
+                $publishedPath = parse_url((string) $published->header('Location'), PHP_URL_PATH);
+                if ($published->redirect() && is_string($publishedPath)
+                    && preg_match('~/s/([^/]+)$~', $publishedPath, $match)) {
+                    $candidate = rawurldecode($match[1]);
+                    if ($candidate !== $note) {
+                        $editor = Http::withoutRedirecting()->connectTimeout(2)->timeout(3)
+                            ->get($hedgedocUrl . '/s/' . rawurlencode($candidate) . '/edit');
+                        $editorPath = parse_url((string) $editor->header('Location'), PHP_URL_PATH);
+                        if ($editor->redirect() && is_string($editorPath)
+                            && rawurldecode(basename($editorPath)) === $candidate) {
+                            $target = '/profundarium/' . rawurlencode($candidate);
+                            $query = $request->getQueryString();
+
+                            return redirect($target . ($query !== null ? '?' . $query : ''), 302);
+                        }
+                    }
+                }
+            } catch (ConnectionException $exception) {
+                // Alias discovery is optional, just like modification metadata.
+            }
+
             // Metadata is optional: an unavailable info endpoint must not hide the note.
             try {
                 $info = Http::acceptJson()->connectTimeout(2)->timeout(3)
