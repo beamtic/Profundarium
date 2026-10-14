@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Verifies that raw style elements before and after Markdown content survive
+ * HTML parsing and note-link rewriting. Also checks that rewritten links keep
+ * query strings and fragments and that headings receive their expected IDs.
+ */
+
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Http;
@@ -25,6 +31,7 @@ MD),
         $response = $this->get('/profundarium/style-check');
 
         $response->assertOk();
+        // false checks literal HTML rather than an escaped representation of the style tag.
         $response->assertSee('<style>.note h1 { color: rgb(123, 45, 67); }</style>', false);
         $response->assertSee('<style media="screen">.note p { font-weight: 500; }</style>', false);
         $response->assertSee('href="/profundarium/AnotherNote?view=1#section"', false);
