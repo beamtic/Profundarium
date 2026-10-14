@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Verifies that the bundled introduction and remote notes render without a
+ * working application database and without setting session cookies. The
+ * introduction must make no HedgeDoc requests; remote downloads are simulated
+ * and must produce the expected page title.
+ */
+
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Http;
@@ -10,6 +17,7 @@ class StatelessNotesTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Simulate unavailable optional metadata and alias endpoints without making real requests.
         Http::fake([
             '*/publish' => Http::response('', 404),
             '*/info' => Http::response('', 404),
@@ -19,12 +27,14 @@ class StatelessNotesTest extends TestCase
     public function test_introduction_needs_no_hedgedoc_database_or_session(): void
     {
         Http::preventStrayRequests();
+        // An undefined database connection makes accidental database access fail the test.
         config(['database.default' => 'unused']);
 
         $response = $this->get('/profundarium');
 
         $response->assertOk();
         $response->assertSee('Beamtic Profundarium');
+        // No response cookies means this request has not started a browser session.
         $this->assertSame([], $response->headers->getCookies());
         Http::assertNothingSent();
     }
