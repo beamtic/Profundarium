@@ -5,6 +5,10 @@
  * both dimensions, including pasted image syntax and ordinary images. Checks
  * that Unicode, quotes, and ampersands survive in alternative text and that
  * image syntax inside inline and fenced code remains text rather than images.
+ *
+ * The fake download contains a fixed set of image syntax edge cases so results
+ * do not depend on a live HedgeDoc server or an editable note. This tests the
+ * renderer against known Markdown input, not real HedgeDoc HTTP behavior.
  */
 
 namespace Tests\Feature;
