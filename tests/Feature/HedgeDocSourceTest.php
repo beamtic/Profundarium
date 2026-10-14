@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * Verifies that notes are downloaded from the configured HedgeDoc HTTP source,
+ * including sources with a base path. Checks that relative, absolute, protocol-
+ * relative, and raw HTML note links point to Profundarium while preserving query
+ * strings and fragments. External hosts, lookalike hosts, assets, and local
+ * fragments must stay unchanged, including when the public and internal hosts differ.
+ */
+
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Http;
@@ -10,6 +18,7 @@ class HedgeDocSourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Optional alias and modification lookups are unavailable in these link tests.
         Http::fake([
             '*/publish' => Http::response('', 404),
             '*/info' => Http::response('', 404),
@@ -28,6 +37,7 @@ class HedgeDocSourceTest extends TestCase
 
         $response = $this->get('/profundarium/example');
         $response->assertOk();
+        // false disables assertion escaping so we compare the actual HTML attribute.
         $response->assertSee('href="/profundarium/Local123"', false);
         $response->assertSee('href="/profundarium/Linked123?x=1#section"', false);
         $response->assertSee('href="https://other.example.test/s/Other123"', false);
@@ -79,6 +89,7 @@ MD)]);
 [Other](https://other.example.test/s/Other123)
 [Lookalike](https://public.example.test.evil.test/s/Other123)
 MD)]);
+        // The incoming host identifies public note links; downloads still use the internal host.
         $response = $this->get('https://public.example.test/profundarium/example');
         $response->assertOk();
         foreach ([
