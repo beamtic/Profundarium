@@ -8,6 +8,13 @@
  * Checks that used or changed files survive and that unsafe paths, symlinks,
  * scan failures, and deletion failures block or report cleanup appropriately.
  * These tests create and delete only their own fixtures, not live HedgeDoc data.
+ *
+ * A real HedgeDoc database and upload directory would make cleanup tests
+ * destructive and dependent on existing notes. Isolated fixtures provide
+ * repeatable references and files; reader and filesystem mocks reproduce
+ * failures that are difficult to trigger reliably on a live instance.
+ * This does not verify connectivity or permissions on a deployed database
+ * or upload directory.
  */
 
 namespace Tests\Feature;
