@@ -4,6 +4,10 @@ Profundarium displays Markdown notes from HedgeDoc as HTML. It makes notes easie
 for search engines to index, cleaner to print, and easy to save as PDF using
 the browser's print menu.
 
+In Markdown text, `--` and `---` render as an em dash (—). Code and escaped
+dashes remain literal. HTML entities such as `&quot;` display as their characters
+in note text and table-of-contents labels; entities inside code remain literal.
+
 This repository contains the Laravel application only.
 [Sandboxer](https://github.com/Turbulentarius/sandboxer) provides the Docker
 Compose environment used to develop it, including PHP, Apache, and HedgeDoc.

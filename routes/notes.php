@@ -1,6 +1,7 @@
 <?php
 
 use App\Markdown\SizedImageExtension;
+use App\Markdown\EmDashExtension;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -134,7 +135,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
                     'plaintext',
                 ],
             ],
-        ], [new HeadingPermalinkExtension(), new SizedImageExtension()]);
+        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension()]);
 
     $headings = [];
     $html = preg_replace_callback(
@@ -143,7 +144,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
             $headings[] = [
                 'level' => (int) $match[1],
                 'id' => $match[2],
-                'label' => strip_tags($match[3]),
+                'label' => html_entity_decode(strip_tags($match[3]), ENT_QUOTES | ENT_HTML5, 'UTF-8'),
             ];
 
             return $match[0];
