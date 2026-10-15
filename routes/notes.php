@@ -117,6 +117,9 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
 
     $html = Str::markdown($markdown, [
             'html_input' => 'allow',
+            'renderer' => [
+                'soft_break' => "<br>\n",
+            ],
             'heading_permalink' => [
                 'apply_id_to_heading' => true,
                 'fragment_prefix' => '',

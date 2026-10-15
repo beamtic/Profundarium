@@ -7,6 +7,8 @@ the browser's print menu.
 In Markdown text, `--` and `---` render as an em dash (—). Code and escaped
 dashes remain literal. HTML entities such as `&quot;` display as their characters
 in note text and table-of-contents labels; entities inside code remain literal.
+Single line breaks in Markdown text remain visible, including inside blockquotes,
+matching HedgeDoc's display. Blank lines still separate paragraphs.
 
 This repository contains the Laravel application only.
 [Sandboxer](https://github.com/Turbulentarius/sandboxer) provides the Docker
