@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 Route::get('/profundarium/{note?}', function (Request $request, ?string $note = null) {
     $hedgedocUrl = rtrim(config('services.hedgedoc.url'), '/');
@@ -92,11 +94,33 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
     }
 
     $robots = null;
+    $openGraph = [];
     if (preg_match('/\A---\r?\n(.*?)\r?\n---(?:\r?\n|$)/s', $markdown, $frontMatter)) {
-        foreach (preg_split('/\r?\n/', $frontMatter[1]) as $line) {
-            if (preg_match('/^\s*robots\s*:\s*(.*?)\s*$/i', $line, $match)) {
-                $robots = trim($match[1], " \t\"'");
-                break;
+        try {
+            $metadata = Yaml::parse($frontMatter[1]);
+        } catch (ParseException $exception) {
+            // Invalid optional metadata must not prevent the note from rendering.
+            $metadata = [];
+        }
+
+        if (is_array($metadata)) {
+            if (is_string($metadata['robots'] ?? null)) {
+                $robots = $metadata['robots'];
+            }
+
+            if (is_array($metadata['opengraph'] ?? null)) {
+                foreach ($metadata['opengraph'] as $property => $values) {
+                    if (!is_string($property) || !preg_match('/^[a-zA-Z][a-zA-Z0-9_:]*$/D', $property)) {
+                        continue;
+                    }
+
+                    // Lists allow repeated properties, such as multiple preview images.
+                    foreach (is_array($values) && array_is_list($values) ? $values : [$values] as $value) {
+                        if (is_string($value) || is_int($value) || is_float($value)) {
+                            $openGraph[] = ['property' => 'og:' . $property, 'content' => (string) $value];
+                        }
+                    }
+                }
             }
         }
 
@@ -217,6 +241,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
 
     $response = response()->view('note', [
         'html' => $html,
+        'openGraph' => $openGraph,
         'title' => trim($document->getElementsByTagName('h1')->item(0)?->textContent ?? ''),
     ], $status ?? 200);
 

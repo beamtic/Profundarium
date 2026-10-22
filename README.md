@@ -119,6 +119,27 @@ A containerized Nginx must have the application's public directory mounted at
 that path (read-only is sufficient). Replace any previous asset alias to
 `/srv/profundarium/public/` with this mapping when deploying the moved files.
 
+## Note metadata
+
+YAML front matter is removed from the displayed note. `robots` sets the
+`X-Robots-Tag` response header (default: `noindex, nofollow`). The `opengraph`
+mapping adds escaped `<meta property="og:…" content="…">` tags to the page head:
+
+```yaml
+---
+robots: noindex, nofollow
+opengraph:
+  title: The Collaboration
+  image: https://hedgedoc.beamtic.net/uploads/example.png
+  type: article
+---
+```
+
+Use absolute public URLs for preview images. Property names omit the `og:`
+prefix; colon-separated names such as `image:alt` are supported. Lists produce
+repeated tags. Invalid YAML or unsupported values are ignored so the note still
+renders. The browser title continues to use the note's first heading.
+
 ## Routes and notes
 
 - `/profundarium` renders the bundled introduction in `resources/notes/default.md`.

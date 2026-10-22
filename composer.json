@@ -12,7 +12,8 @@
     "require": {
         "php": "^8.4.1",
         "ext-dom": "*",
-        "laravel/framework": "^13.17"
+        "laravel/framework": "^13.17",
+        "symfony/yaml": "^8.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.6",
