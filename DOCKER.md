@@ -29,9 +29,18 @@ services:
       LOG_CHANNEL: stderr
 ```
 
-This serves FastCGI on port 9000, which requires a web server configured for
-Profundarium's public directory at `/srv/profundarium/public`. It does not serve
-HTTP directly. The web server must have access to the public assets as well.
+The image serves HTTP on port 8080 using Alpine Nginx and PHP-FPM. Both are
+supervised by s6; an unexpected exit of either service stops the container with
+an error, while Docker stop shuts down both gracefully. FPM listens only on
+container loopback. Nginx serves the bundled static assets directly, so no asset
+copy service or public-files volume is needed. A reverse proxy can forward HTTP
+to `profundarium:8080`. For direct local access, add:
+
+```yaml
+ports:
+  - "127.0.0.1:8080:8080"
+```
+
 Provide application settings and a stable APP_KEY at runtime. No application
 bind mount is needed; mounting over `/srv/profundarium` hides the bundled code
 and dependencies. The image defaults to stderr logging and temporary Laravel storage under
@@ -42,6 +51,54 @@ Laravel storage, mount a writable volume and set LARAVEL_STORAGE_PATH to its
 container path instead. Do not run cache-generation Artisan commands against
 the read-only `bootstrap/cache` directory at startup. The application worker account defaults to UID/GID
 1000; build arguments APP_UID and APP_GID can change those IDs.
+
+## Serving mounted HedgeDoc uploads
+
+Nginx serves `/uploads/<filename>` directly from `/hedgedoc/public/uploads/`.
+This mount is optional: without it, upload requests return 404 and the application
+still starts normally. Directory listings, symlinks, hidden paths, and PHP file
+requests are blocked. Files must be readable by the `profundarium` account.
+Only mount public uploads here; every readable supported file is publicly served.
+
+For a host directory, add this to the Profundarium service:
+
+```yaml
+volumes:
+  - type: bind
+    source: ./hedgedoc-uploads
+    target: /hedgedoc/public/uploads
+    read_only: true
+    bind:
+      create_host_path: false
+```
+
+For a named volume shared with HedgeDoc, mount that volume at the same container
+path with `:ro`. If the volume contains HedgeDoc's entire public directory, mount
+it at `/hedgedoc/public:ro`; Nginx still exposes only the `uploads` subdirectory,
+not the SQLite database or other siblings.
+
+This provides the upload URL endpoint; it does not rewrite image URLs inside
+notes. Existing absolute URLs still point to their original host. To use this
+endpoint under your HedgeDoc domain, configure your reverse proxy to send that
+domain's `/uploads/` requests to Profundarium's HTTP port 8080 while forwarding
+other HedgeDoc requests to HedgeDoc. HEDGEDOC_UPLOADS_PATH configures the media
+commands and does not change Nginx's fixed mount path.
+
+## Administrator-managed static files
+
+Mount your custom directory at `/srv/static` to serve its files at `/static/`:
+
+```yaml
+volumes:
+  - ./static:/srv/static:ro
+```
+
+For example, `./static/manual.pdf` is available at `/static/manual.pdf`.
+The directory is optional and must be readable by the `profundarium` account.
+It follows the same rules as uploads: no directory listings, hidden paths, PHP
+files, or symlinks. Files are served directly by Nginx without Laravel or a
+HedgeDoc dependency. Administrators manage the files on the host; the container
+only needs read access.
 
 ## Database selection
 
@@ -83,7 +140,7 @@ and sidecar availability. Profundarium does not create or migrate this database.
 ## GitHub Actions
 
 `.github/workflows/container.yml` runs application tests, builds the runtime image,
-and checks FPM startup for pull requests targeting `main` and pushes to `main`.
+and checks HTTP rendering, assets, read-only operation, and service lifecycle for pull requests targeting `main` and pushes to `main`.
 Only push events publish images to GitHub Container Registry. Manual workflow
 runs validate the selected ref without publishing. Builds currently target the
 GitHub Ubuntu runner's native Linux AMD64 architecture.

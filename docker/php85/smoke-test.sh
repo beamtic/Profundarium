@@ -1,27 +1,21 @@
 #!/bin/sh
 set -eu
 
-php-fpm85 -t
-/bin/sh /usr/local/bin/php-fpm-entrypoint php-fpm85 -F &
-fpm_pid=$!
-trap 'kill "$fpm_pid"' EXIT
+/bin/sh /usr/local/bin/php-fpm-entrypoint profundarium &
+supervisor_pid=$!
+trap 'kill "$supervisor_pid"; wait "$supervisor_pid"' EXIT
 ready=0
-for attempt in 1 2 3 4 5; do
-    if /usr/local/bin/php-fpm-healthcheck; then ready=1; break; fi
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    if /usr/local/bin/profundarium-healthcheck; then ready=1; break; fi
     sleep 1
 done
 test "$ready" = 1
-
-# Render a real Blade page through FPM as its non-root application worker.
-env -i SCRIPT_NAME=/index.php SCRIPT_FILENAME=/srv/profundarium/public/index.php \
-    REQUEST_METHOD=GET REQUEST_URI=/profundarium SERVER_NAME=localhost \
-    SERVER_PORT=80 SERVER_PROTOCOL=HTTP/1.1 HTTP_HOST=localhost \
-    /usr/bin/cgi-fcgi -bind -connect 127.0.0.1:9000 > /tmp/profundarium-response
-if grep -q '^Status:' /tmp/profundarium-response; then
-    cat /tmp/profundarium-response
-    exit 1
-fi
+wget -q -O /tmp/profundarium-response http://127.0.0.1:8080/profundarium/
 grep -qi '<html' /tmp/profundarium-response
+wget -q -O /dev/null http://127.0.0.1:8080/profundarium/assets/css/notes.css
+# Never serve private application files.
+if wget -q -O /dev/null http://127.0.0.1:8080/.env; then exit 1; fi
+if wget -q -O /dev/null http://127.0.0.1:8080/composer.json; then exit 1; fi
 
 # Exercise default logging without an application .env file.
 php -r '
