@@ -7,7 +7,8 @@ ARG APP_GID=1000
 RUN apk add --no-cache \
     php85 \
     php85-fpm \
-    fcgi
+    nginx \
+    s6
 
 # PHP extensions used by Laravel / Profundarium in production.
 # OPcache is built into PHP 8.5.
@@ -36,7 +37,9 @@ RUN apk add --no-cache \
 COPY ./docker/php85/php-fpm.conf /etc/php85/php-fpm.conf
 COPY ./docker/php85/php-fpm.d/www.conf /etc/php85/php-fpm.d/www.conf
 COPY ./docker/php85/php.ini /etc/php85/php.ini
-COPY ./docker/php85/healthcheck.sh /usr/local/bin/php-fpm-healthcheck
+COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/services/ /etc/profundarium/services/
+COPY ./docker/healthcheck.sh /usr/local/bin/profundarium-healthcheck
 COPY ./docker/php85/entrypoint.sh /usr/local/bin/php-fpm-entrypoint
 
 RUN addgroup -g "${APP_GID}" profundarium \
@@ -63,10 +66,11 @@ COPY --from=build --chown=profundarium:profundarium /srv/profundarium /srv/profu
 RUN mkdir -p storage/framework/cache/data storage/framework/sessions \
         storage/framework/views storage/logs bootstrap/cache \
     && chown -R profundarium:profundarium storage bootstrap/cache \
-    && chmod 755 /usr/local/bin/php-fpm-healthcheck
+    && chmod 755 /usr/local/bin/profundarium-healthcheck \
+    && chmod -R a+rx /etc/profundarium/services
 
-EXPOSE 9000
+EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD ["/usr/local/bin/php-fpm-healthcheck"]
+    CMD ["/usr/local/bin/profundarium-healthcheck"]
 ENTRYPOINT ["/bin/sh", "/usr/local/bin/php-fpm-entrypoint"]
-CMD ["php-fpm85", "-F"]
+CMD ["profundarium"]
