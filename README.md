@@ -15,6 +15,11 @@ This repository contains the Laravel application only.
 Compose environment used to develop it, including PHP, Apache, and HedgeDoc.
 Sandboxer's containers and configuration live in that separate repository.
 
+## Container image
+
+See [DOCKER.md](DOCKER.md) for standalone image builds, Compose usage, and the
+GitHub Actions test and GHCR publishing workflow.
+
 ## Requirements
 
 - PHP 8.4.1 or newer, with DOM and the extensions required by Composer.
