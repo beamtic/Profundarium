@@ -47,6 +47,25 @@ with tempfile.TemporaryDirectory(prefix="profundarium-compose-") as directory:
     try:
         # Wait for asset initialization, FPM health, and Nginx HTTP health.
         compose("up", "-d", "--wait", "--wait-timeout", "90")
+        # Verify the actual runtime identity and kernel restrictions, not just
+        # the YAML settings. Neither master process should run as root.
+        for service in ("profundarium", "web"):
+            status = compose("exec", "-T", service, "cat", "/proc/1/status")
+            fields = dict(line.split(":", 1) for line in status.splitlines() if ":" in line)
+            assert all(int(uid) != 0 for uid in fields["Uid"].split()), service
+            assert int(fields["CapEff"].strip(), 16) == 0, service
+            assert int(fields["CapBnd"].strip(), 16) == 0, service
+            assert fields["NoNewPrivs"].strip() == "1", service
+            print("Verified non-root, zero capabilities, no-new-privileges:", service)
+
+        # The initializer must be non-root too. Exercise a second copy into the
+        # same volume, including removal of a stale generated asset.
+        compose("run", "--rm", "--no-deps", "--entrypoint", "/bin/sh", "assets-init",
+                "-ec", "test $(id -u) != 0; touch /export-public/stale-test.txt")
+        compose("run", "--rm", "--no-deps", "assets-init")
+        compose("run", "--rm", "--no-deps", "--entrypoint", "/bin/sh", "assets-init",
+                "-ec", "test ! -e /export-public/stale-test.txt")
+        print("Verified non-root asset initialization and repeat updates")
         port = compose("port", "web", "8080").rsplit(":", 1)[1]
         base = f"http://127.0.0.1:{port}"
         # Exercise Laravel rendering through FastCGI, copied CSS, and /up.

@@ -15,9 +15,11 @@ shared public files and optional uploads/static mounts.
 
 ## Local development
 
-Requirements: PHP 8.4.1 or newer with the extensions required by Composer,
-Composer 2, and a reachable HedgeDoc instance. Rendering notes does not require
-a database, Node.js, or an asset build.
+Requirements: PHP 8.4.27+ on the 8.4 branch, or PHP 8.5.12+ on newer PHP 8
+branches, with the extensions required by Composer; Composer 2; and a reachable
+HedgeDoc instance. These minimums include the
+[PHP2Shell security fixes](https://www.php.net/archive/2026.php#2026-10-21-5).
+Rendering notes does not require a database, Node.js, or an asset build.
 
 ```sh
 composer setup

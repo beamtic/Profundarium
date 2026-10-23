@@ -36,5 +36,5 @@ The human maintainer decides when to release. Create and push a release tag only
 when releasing is explicitly authorized; tag the tested commit intended for that
 release. If asked to ship a release, perform the version checks as part of it.
 
-The initial version 0.1.0 is being prepared and is not published merely because
-VERSION or the Compose example refers to it.
+A version in VERSION or the Compose example is not published until its release
+tag workflow succeeds.

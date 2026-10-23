@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+# The image must start as its application account, including the FPM master.
+test "$(id -u)" != 0
 php-fpm85 -t
 /bin/sh /usr/local/bin/php-fpm-entrypoint php-fpm85 -F &
 fpm_pid=$!

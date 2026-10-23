@@ -22,7 +22,7 @@ HedgeDoc connectivity, and application settings for your environment.
 Generate a stable Laravel key and put it in the Compose `.env` beside the sample:
 
 ```sh
-docker run --rm ghcr.io/beamtic/profundarium:0.1.0 php artisan key:generate --show
+docker run --rm ghcr.io/beamtic/profundarium:0.2.0 php artisan key:generate --show
 ```
 
 ```dotenv
@@ -62,8 +62,17 @@ The backend image supplies an FPM health check. The web service checks `/up`
 over HTTP, covering Nginx, FastCGI, and Laravel. The `profundarium` account defaults
 to UID/GID 1000, configurable with APP_UID and APP_GID build arguments.
 Temporary Laravel storage defaults to `/tmp/profundarium-storage`; no application
-`.env` is baked into the image. Do not run cache-generation commands against
-the read-only `bootstrap/cache` directory at startup.
+`.env` is baked into the image.
+
+## Non-root operation
+
+PHP-FPM runs as `profundarium` and Nginx runs as `nginx`. The sample services
+use read-only root filesystems, drop all Linux capabilities, and enable
+no-new-privileges. Temporary files are stored under `/tmp`.
+
+Mounted uploads, static files, and Nginx configuration must be readable by their
+service accounts. Any writable PHP storage mount must be writable by
+`profundarium`. The entrypoint does not change host-directory ownership.
 
 ## Optional uploaded and administrator files
 
@@ -153,8 +162,8 @@ and require the workflow checks before merging if failed builds should block mer
 
 ## Preparing a release
 
-`VERSION` records the release being prepared. The initial numbered release is
-`0.1.0`; references in the sample become usable after that release is published.
+`VERSION` records the release being prepared. The release being prepared is
+`0.2.0`; references in the sample become usable after that release is published.
 Both sample image references must match VERSION. CI checks this and rejects
 release tags that do not match it.
 
