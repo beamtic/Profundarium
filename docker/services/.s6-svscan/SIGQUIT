@@ -1,4 +1,0 @@
-#!/bin/sh
-# Mark an intentional shutdown before stopping the services.
-touch /tmp/profundarium-services/.stopping
-exec s6-svscanctl -t /tmp/profundarium-services

@@ -1,104 +1,94 @@
-# Profundarium container
+# Profundarium PHP-FPM image
 
-Build from the Profundarium repository root, locally or after checkout in CI:
+The published image contains PHP-FPM, Profundarium, and production Composer
+dependencies. It does not contain Nginx or a process supervisor. PHP-FPM runs
+in the foreground on port 9000. This is FastCGI, not HTTP; do not publish that
+port to the internet. Logs go to stderr.
+
+Build from the repository root:
 
 ```sh
 docker build -t profundarium .
 ```
 
-The image contains the application and production Composer dependencies. Composer
-runs during the build using the image's PHP runtime; Composer and its download
-tool remain in the build stage. No Sandboxer checkout, configuration, or mounts
-are required. Local environment files, credentials, vendor files, and runtime
-storage are excluded from the build context.
+## Example with a separate Nginx container
 
-Use the built image in any Compose project:
+`compose.example.yml` is a starting point for your own deployment. It uses the
+official Alpine Nginx image and the example configuration in
+`docker/nginx/nginx.conf`. Both services have read-only root filesystems and
+writable temporary storage under `/tmp`. Adapt networking, TLS termination,
+HedgeDoc connectivity, and application settings for your environment.
 
-```yaml
-services:
-  profundarium:
-    image: profundarium
-    read_only: true
-    tmpfs:
-      - /tmp:size=64m,mode=1777
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      APP_KEY: ${APP_KEY:?Set APP_KEY}
-      APP_URL: ${APP_URL:?Set APP_URL}
-      LOG_CHANNEL: stderr
+Generate a stable Laravel key and put it in the Compose `.env` beside the sample:
+
+```sh
+docker run --rm ghcr.io/beamtic/profundarium:0.1.0 php artisan key:generate --show
 ```
 
-The image serves HTTP on port 8080 using Alpine Nginx and PHP-FPM. Both are
-supervised by s6; an unexpected exit of either service stops the container with
-an error, while Docker stop shuts down both gracefully. FPM listens only on
-container loopback. Nginx serves the bundled static assets directly, so no asset
-copy service or public-files volume is needed. A reverse proxy can forward HTTP
-to `profundarium:8080`. For direct local access, add:
-
-```yaml
-ports:
-  - "127.0.0.1:8080:8080"
+```dotenv
+PROFUNDARIUM_APP_KEY=base64:YOUR_GENERATED_VALUE
+PROFUNDARIUM_APP_URL=http://localhost:8080
+HEDGEDOC_URL=http://your-reachable-hedgedoc:3000
 ```
 
-Provide application settings and a stable APP_KEY at runtime. No application
-bind mount is needed; mounting over `/srv/profundarium` hides the bundled code
-and dependencies. The image defaults to stderr logging and temporary Laravel storage under
-`/tmp/profundarium-storage`. With `read_only: true`, provide the `/tmp` tmpfs
-shown above for compiled views, file cache, and PHP temporary files. These files
-are discarded on container recreation. Sessions are kept in memory. To persist
-Laravel storage, mount a writable volume and set LARAVEL_STORAGE_PATH to its
-container path instead. Do not run cache-generation Artisan commands against
-the read-only `bootstrap/cache` directory at startup. The application worker account defaults to UID/GID
-1000; build arguments APP_UID and APP_GID can change those IDs.
+Then start the sample:
 
-## Serving mounted HedgeDoc uploads
+```sh
+docker compose -f compose.example.yml up -d
+```
 
-Nginx serves `/uploads/<filename>` directly from `/hedgedoc/public/uploads/`.
-This mount is optional: without it, upload requests return 404 and the application
-still starts normally. Directory listings, symlinks, hidden paths, and PHP file
-requests are blocked. Files must be readable by the `profundarium` account.
-Only mount public uploads here; every readable supported file is publicly served.
+Open `http://localhost:8080/profundarium/`. For a local build, set
+`PROFUNDARIUM_IMAGE=profundarium` in the Compose `.env`. Use a tested version or
+digest in production. This example requires the PHP-FPM-only image; the older
+combined HTTP image is incompatible with it until this change is published.
 
-For a host directory, add this to the Profundarium service:
+The `assets-init` service runs once to copy the image's public files into the dedicated
+`public` volume. Nginx mounts that volume read-only at the same public-directory
+path used by PHP-FPM. It needs no source checkout or shared application-code
+mount. The asset service clears only that generated volume before copying;
+do not use it for uploads or administrator files.
+
+When updating, pull the new image, stop the web service, refresh the generated
+public files, and recreate the application and web services:
+
+```sh
+docker compose -f compose.example.yml pull
+docker compose -f compose.example.yml stop web
+docker compose -f compose.example.yml run --rm assets-init
+docker compose -f compose.example.yml up -d --force-recreate profundarium web
+```
+
+The backend image supplies an FPM health check. The web service checks `/up`
+over HTTP, covering Nginx, FastCGI, and Laravel. The `profundarium` account defaults
+to UID/GID 1000, configurable with APP_UID and APP_GID build arguments.
+Temporary Laravel storage defaults to `/tmp/profundarium-storage`; no application
+`.env` is baked into the image. Do not run cache-generation commands against
+the read-only `bootstrap/cache` directory at startup.
+
+## Optional uploaded and administrator files
+
+Uncomment the example web-service mounts as needed:
 
 ```yaml
 volumes:
-  - type: bind
-    source: ./hedgedoc-uploads
-    target: /hedgedoc/public/uploads
-    read_only: true
-    bind:
-      create_host_path: false
-```
-
-For a named volume shared with HedgeDoc, mount that volume at the same container
-path with `:ro`. If the volume contains HedgeDoc's entire public directory, mount
-it at `/hedgedoc/public:ro`; Nginx still exposes only the `uploads` subdirectory,
-not the SQLite database or other siblings.
-
-This provides the upload URL endpoint; it does not rewrite image URLs inside
-notes. Existing absolute URLs still point to their original host. To use this
-endpoint under your HedgeDoc domain, configure your reverse proxy to send that
-domain's `/uploads/` requests to Profundarium's HTTP port 8080 while forwarding
-other HedgeDoc requests to HedgeDoc. HEDGEDOC_UPLOADS_PATH configures the media
-commands and does not change Nginx's fixed mount path.
-
-## Administrator-managed static files
-
-Mount your custom directory at `/srv/static` to serve its files at `/static/`:
-
-```yaml
-volumes:
+  - ./uploads:/hedgedoc/public/uploads:ro
   - ./static:/srv/static:ro
 ```
 
-For example, `./static/manual.pdf` is available at `/static/manual.pdf`.
-The directory is optional and must be readable by the `profundarium` account.
-It follows the same rules as uploads: no directory listings, hidden paths, PHP
-files, or symlinks. Files are served directly by Nginx without Laravel or a
-HedgeDoc dependency. Administrators manage the files on the host; the container
-only needs read access.
+The Nginx example serves those directories at `/uploads/` and `/static/`.
+They are optional, and missing files return 404. Directory listings, hidden
+paths, PHP files, and symlinks are blocked. Files must be readable by Nginx's
+`nginx` worker account. Only mount files intended for public access.
+
+These mounts belong on the web service. If using the optional media commands,
+also mount uploads into the PHP service and set HEDGEDOC_UPLOADS_PATH to that
+container path; cleanup requires a writable upload mount. Keep database files
+outside the publicly served directories.
+
+Existing absolute image URLs are not rewritten. If these endpoints should be
+served under your HedgeDoc domain, route its `/uploads/` and `/static/` requests
+to the web service in your existing reverse proxy. Configure any custom redirects
+in your own Nginx configuration.
 
 ## Database selection
 
@@ -140,7 +130,8 @@ and sidecar availability. Profundarium does not create or migrate this database.
 ## GitHub Actions
 
 `.github/workflows/container.yml` runs application tests, builds the runtime image,
-and checks HTTP rendering, assets, read-only operation, and service lifecycle for pull requests targeting `main` and pushes to `main`.
+and checks the read-only FPM runtime plus the separate Nginx sample on pull
+requests targeting `main` and pushes to `main`.
 Only push events publish images to GitHub Container Registry. Manual workflow
 runs validate the selected ref without publishing. Builds currently target the
 GitHub Ubuntu runner's native Linux AMD64 architecture.
@@ -159,3 +150,18 @@ private packages require authentication on machines pulling the image.
 Use a published image reference in Compose, preferably pinned to its digest for
 production. Publishing does not deploy or restart any environment. Protect `main`
 and require the workflow checks before merging if failed builds should block merges.
+
+## Preparing a release
+
+`VERSION` records the release being prepared. The initial numbered release is
+`0.1.0`; references in the sample become usable after that release is published.
+Both sample image references must match VERSION. CI checks this and rejects
+release tags that do not match it.
+
+For the next release, increment VERSION once and update both sample defaults.
+Use patch versions for fixes and minor versions for new features or incompatible
+changes while below 1.0. Do not increment for every development commit.
+After the maintainer approves a tested release commit, create and push its
+matching `vX.Y.Z` tag. The tag workflow publishes image `X.Y.Z`. Existing numbered
+releases must never be overwritten. `main` remains a moving development image.
+Contributor and AI instructions are in [AGENTS.md](AGENTS.md).
