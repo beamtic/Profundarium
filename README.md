@@ -17,7 +17,8 @@ Sandboxer's containers and configuration live in that separate repository.
 
 ## Container image
 
-See [DOCKER.md](DOCKER.md) for standalone image builds, Compose usage, and the
+See [DOCKER.md](DOCKER.md) and [compose.example.yml](compose.example.yml) for
+PHP-FPM image builds, a separate Nginx example, and the
 GitHub Actions test and GHCR publishing workflow.
 
 ## Requirements

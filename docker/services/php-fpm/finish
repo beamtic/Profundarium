@@ -1,8 +1,0 @@
-#!/bin/sh
-# Any unexpected service exit tears down the whole container for Docker to restart.
-if [ ! -e /tmp/profundarium-services/.stopping ]; then
-    echo "A Profundarium service exited unexpectedly (status $1, signal ${2:-0})." >&2
-    touch /tmp/profundarium-services/.failed /tmp/profundarium-services/.stopping
-    s6-svscanctl -t /tmp/profundarium-services
-fi
-exit 125

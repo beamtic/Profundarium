@@ -1,0 +1,67 @@
+# Defaults target the release being prepared in VERSION; publish it before pulling.
+# Example only: adapt networks, settings, mounts, and reverse proxy for your host.
+services:
+  # One-shot initializer: copies public files from the application image into
+  # the shared volume, then exits. Rerun it when deploying a new image.
+  assets-init:
+    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.1.0}
+    entrypoint: [/bin/sh, -ec]
+    # Replace only the generated contents of this dedicated volume on each run.
+    command:
+      - find /export-public -mindepth 1 -maxdepth 1 -exec rm -rf {} +; cp -a /srv/profundarium/public/. /export-public/
+    read_only: true
+    volumes:
+      - public:/export-public
+    restart: "no"
+
+  # Application runtime: runs PHP-FPM continuously and executes Laravel requests
+  # forwarded by Nginx. Uses the same image version as assets-init.
+  profundarium:
+    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.1.0}
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${PROFUNDARIUM_APP_KEY:?Set PROFUNDARIUM_APP_KEY}
+      APP_URL: ${PROFUNDARIUM_APP_URL:-http://localhost:8080}
+      LOG_CHANNEL: stderr
+      HEDGEDOC_URL: ${HEDGEDOC_URL:-http://hedgedoc:3000}
+    # FPM is available only on the Compose network; never publish it to the host.
+
+  # HTTP server: serves public files from the shared volume and forwards PHP
+  # requests to profundarium:9000. This is the only service exposing a host port.
+  web:
+    image: nginx:1.30.6-alpine
+    restart: unless-stopped
+    read_only: true
+    # Use the example config directly without image entrypoint rewrites.
+    entrypoint: [nginx, -e, stderr, -g, "daemon off;"]
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    ports:
+      - "127.0.0.1:${PROFUNDARIUM_HTTP_PORT:-8080}:8080"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - public:/srv/profundarium/public:ro
+      # Optional administrator-managed and HedgeDoc files:
+      # - ./static:/srv/static:ro
+      # - ./uploads:/hedgedoc/public/uploads:ro
+    depends_on:
+      # Wait for the copy to finish successfully before serving public files.
+      assets-init:
+        condition: service_completed_successfully
+      profundarium:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:8080/up"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 5s
+
+volumes:
+  # Generated public files only; keep uploads and administrator files separate.
+  public:
