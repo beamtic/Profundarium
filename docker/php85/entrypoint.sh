@@ -6,7 +6,7 @@ if [ "${1:-}" = php-fpm85 ]; then
     storage=${LARAVEL_STORAGE_PATH:-/tmp/profundarium-storage}
     mkdir -p "$storage/framework/cache/data" "$storage/framework/sessions" \
         "$storage/framework/views" "$storage/logs"
-    chown -R profundarium:profundarium "$storage"
+    # Directories belong to the current user; never change host mount ownership.
 fi
 
 exec "$@"

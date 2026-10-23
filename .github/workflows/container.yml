@@ -62,7 +62,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=image
       - name: Check read-only runtime, rendering, cache, and stderr logging
         run: |
-          docker run --rm --read-only --tmpfs /tmp:size=64m,mode=1777 \
+          docker run --rm --cap-drop=ALL --security-opt=no-new-privileges:true --read-only --tmpfs /tmp:size=64m,mode=1777 \
             profundarium:ci /bin/sh docker/php85/smoke-test.sh
       - name: Check sample Nginx Compose setup and mounted files
         run: python3 docker/check-compose.py profundarium:ci

@@ -10,7 +10,7 @@
         "laravel"
     ],
     "require": {
-        "php": "^8.4.1",
+        "php": "~8.4.27 || ^8.5.12",
         "ext-dom": "*",
         "laravel/framework": "^13.17",
         "symfony/yaml": "^8.1"

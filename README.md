@@ -1,302 +1,117 @@
 # Beamtic Profundarium
 
-Profundarium displays Markdown notes from HedgeDoc as HTML. It makes notes easier
-for search engines to index, cleaner to print, and easy to save as PDF using
-the browser's print menu.
+Profundarium renders public HedgeDoc Markdown notes as HTML for reading,
+printing, and saving as PDF through your browser.
 
-In Markdown text, `--` and `---` render as an em dash (—). Code and escaped
-dashes remain literal. HTML entities such as `&quot;` display as their characters
-in note text and table-of-contents labels; entities inside code remain literal.
-Single line breaks in Markdown text remain visible, including inside blockquotes,
-matching HedgeDoc's display. Blank lines still separate paragraphs.
+## Container deployment
 
-This repository contains the Laravel application only.
-[Sandboxer](https://github.com/Turbulentarius/sandboxer) provides the Docker
-Compose environment used to develop it, including PHP, Apache, and HedgeDoc.
-Sandboxer's containers and configuration live in that separate repository.
+The [published PHP-FPM image](https://github.com/beamtic/Profundarium/pkgs/container/profundarium)
+includes the application and production Composer dependencies. It requires a
+separate web server.
 
-## Container image
+See [DOCKER.md](DOCKER.md) for deployment instructions and
+[compose.example.yml](compose.example.yml) for a working Nginx example, including
+shared public files and optional uploads/static mounts.
 
-See [DOCKER.md](DOCKER.md) and [compose.example.yml](compose.example.yml) for
-PHP-FPM image builds, a separate Nginx example, and the
-GitHub Actions test and GHCR publishing workflow.
+## Local development
 
-## Requirements
+Requirements: PHP 8.4.27+ on the 8.4 branch, or PHP 8.5.12+ on newer PHP 8
+branches, with the extensions required by Composer; Composer 2; and a reachable
+HedgeDoc instance. These minimums include the
+[PHP2Shell security fixes](https://www.php.net/archive/2026.php#2026-10-21-5).
+Rendering notes does not require a database, Node.js, or an asset build.
 
-- PHP 8.4.1 or newer, with DOM and the extensions required by Composer.
-- Composer 2.
-- A reachable HedgeDoc instance with notes that can be downloaded without signing in.
+```sh
+composer setup
+# Configure APP_URL and HEDGEDOC_URL in .env.
+php artisan serve
+```
 
-Rendering pages does not need a database, migrations, a queue worker, Node.js,
-or an asset build. The optional media commands require PostgreSQL access and
-PHP's `pdo_pgsql` extension. CSS and fonts are served directly from `public/`.
+`composer setup` installs dependencies, creates `.env` if missing, and generates
+an application key. Use `composer install` for subsequent dependency installs.
 
-## Develop with Sandboxer
+Example application settings:
 
-For a fresh checkout, clone Profundarium into Sandboxer's `www/laravel` directory
-**before** starting Sandboxer. Its setup service leaves existing applications alone.
-If that directory already contains the generated example or your own work, move
-it aside first; do not overwrite it.
+```dotenv
+APP_URL=http://127.0.0.1:8000
+HEDGEDOC_URL=https://notes.example.com
+```
+
+`HEDGEDOC_URL` must be reachable from PHP. Keep `.env` private and set
+`APP_DEBUG=false` on publicly accessible instances. If configuration is cached,
+run `php artisan config:clear` after changing settings.
+
+### Using Sandboxer
+
+[Sandboxer](https://github.com/Turbulentarius/sandboxer) provides the separate
+Docker development environment. Clone Profundarium before starting it so its
+setup service preserves this application:
 
 ```sh
 git clone https://github.com/Turbulentarius/sandboxer.git
 cd sandboxer
-git clone https://github.com/Turbulentarius/profundarium.git www/laravel
+git clone https://github.com/beamtic/Profundarium.git www/laravel
 docker compose up -d --build
 docker compose exec -w /srv/sandboxer/laravel php composer setup
 ```
 
-Run `composer setup` once for a new checkout: it installs dependencies, copies
-`.env.example` if `.env` is missing, and generates the application key.
-For subsequent dependency installs, use `composer install` instead.
+Use a fresh `www/laravel` directory; do not overwrite existing work. Open
+`http://laravel.localhost/profundarium/`. In the application's `.env`, use
+`APP_URL=http://laravel.localhost` and `HEDGEDOC_URL=http://hedgedoc:3000`.
 
-Open **http://laravel.localhost/profundarium** for the introduction. Create a note in
-**http://hedgedoc.localhost**, make it publicly readable, then open
-`http://laravel.localhost/profundarium/<note-id>` using its HedgeDoc ID or alias.
-Sandboxer's other example applications and database services are independent of
-Profundarium; the optional media commands connect directly to a separately
-configured HedgeDoc PostgreSQL database.
+## Usage
 
-## Configure the note source
+- `/profundarium/` displays the introduction.
+- `/profundarium/<note-id>` displays a public HedgeDoc note using its ID or alias.
+- `/up` checks the application health, without checking HedgeDoc connectivity.
 
-Edit the application's `.env` file (not Sandboxer's root `.env`):
+Use your browser's print menu to print or save a note as PDF. Notes must be
+readable without signing in; Profundarium does not forward login credentials.
+The renderer preserves raw HTML, so use a trusted note source.
 
-```dotenv
-APP_NAME="Beamtic Profundarium"
-APP_URL=http://laravel.localhost
-HEDGEDOC_URL=http://hedgedoc:3000
-```
+### Note metadata
 
-`HEDGEDOC_URL` is the HedgeDoc base URL reachable from the PHP process. The
-`hedgedoc:3000` hostname works on Sandboxer's internal Docker network. When
-running outside that network, set a reachable URL, for example
-`https://notes.example.com`. Profundarium fetches `<base-url>/<note-id>/download`.
-
-Note-link rewriting recognizes the incoming request's host automatically, as
-well as `HEDGEDOC_URL`. This supports a shared public hostname for HedgeDoc and
-Profundarium while fetching notes over Docker's internal network. The reverse
-proxy must preserve the public Host header (or supply forwarded host information
-through Laravel's configured trusted proxies). HTTP and HTTPS links are both
-recognized. A different public HedgeDoc hostname cannot be inferred from the
-request; unrelated hosts are left unchanged.
-
-After changing settings, clear any cached configuration:
-
-```sh
-docker compose exec -w /srv/sandboxer/laravel php php artisan config:clear
-```
-
-Keep `.env` private. The repository includes only `.env.example`, without an
-application key or personal credentials.
-
-## Run without Sandboxer
-
-From the application directory, with PHP and Composer installed:
-
-```sh
-composer setup
-# Set HEDGEDOC_URL and APP_URL in .env for your environment.
-php artisan serve
-```
-
-Visit `http://127.0.0.1:8000/profundarium`. For another web server, its document root must
-be `public/`; `storage/` and `bootstrap/cache/` must be writable by PHP.
-Use `APP_DEBUG=false` when making an instance publicly accessible.
-
-## Static asset URLs
-
-CSS and fonts live in `public/profundarium/assets/css/` and
-`public/profundarium/assets/fonts/`. The stylesheet uses the root-relative URL
-`/profundarium/assets/css/notes.css`, so HTTPS pages also load assets over HTTPS.
-Relative font URLs resolve under the same asset prefix.
-
-Sandboxer's Apache and `php artisan serve` serve these files directly from
-`public/`, without aliases. For Nginx serving the public directory at
-`/srv/profundarium/public`, use:
-
-```nginx
-location ^~ /profundarium/assets/ {
-    root /srv/profundarium/public;
-    try_files $uri =404;
-}
-```
-
-A containerized Nginx must have the application's public directory mounted at
-that path (read-only is sufficient). Replace any previous asset alias to
-`/srv/profundarium/public/` with this mapping when deploying the moved files.
-
-## Note metadata
-
-YAML front matter is removed from the displayed note. `robots` sets the
-`X-Robots-Tag` response header (default: `noindex, nofollow`). The `opengraph`
-mapping adds escaped `<meta property="og:…" content="…">` tags to the page head:
+Optional YAML front matter controls indexing and link previews:
 
 ```yaml
 ---
 robots: noindex, nofollow
 opengraph:
-  title: The Collaboration
-  image: https://hedgedoc.beamtic.net/uploads/example.png
+  title: My note
+  image: https://notes.example.com/uploads/preview.png
   type: article
 ---
 ```
 
-Use absolute public URLs for preview images. Property names omit the `og:`
-prefix; colon-separated names such as `image:alt` are supported. Lists produce
-repeated tags. Invalid YAML or unsupported values are ignored so the note still
-renders. The browser title continues to use the note's first heading.
+The default indexing policy is `noindex, nofollow`. Use absolute public URLs
+for preview images.
 
-## Routes and notes
+## Media commands
 
-- `/profundarium` renders the bundled introduction in `resources/notes/default.md`.
-- `/profundarium/<note-id>` renders a note from the configured HedgeDoc instance.
-  Notes with an alias redirect ID and short-ID URLs to `/profundarium/<alias>`
-  with HTTP 302, preserving query parameters. Alias discovery uses HedgeDoc's
-  HTTP redirects; if unavailable, the requested note still renders.
-- `/up` is Laravel's application health endpoint; it does not check HedgeDoc.
+Optional commands list and remove unused HedgeDoc uploads:
 
-The first H1 supplies the page title. Links in the form `/s/<note-id>` and
-matching absolute HedgeDoc share links are rewritten to `/profundarium/<note-id>`.
-The optional `robots` field in a note's leading front matter becomes the
-`X-Robots-Tag` response header.
+```sh
+php artisan media:unused
+php artisan media:cleanup
+```
 
-Profundarium forwards no login credentials to HedgeDoc. Its renderer preserves raw
-HTML, including note `<style>` blocks, so configure a source whose note content
-you trust; it is not a general-purpose HTML sanitizer.
-
-Images support HedgeDoc's numeric size suffixes: `![Alt text](URL =380x)`
-sets width, `=x240` sets height, and `=380x240` sets both. Alt text is preserved,
-and image examples inside inline or fenced code remain literal.
-
-To print or save a note as PDF, use your browser's print menu.
+These need database access and an uploads mount. Read [MEDIA.md](MEDIA.md) for
+configuration, supported references, and cleanup limitations before using them.
+Cleanup permanently deletes files.
 
 ## Tests
 
-Inside Sandboxer, run from its repository root:
+Run `composer test`, or from Sandboxer's repository root:
 
 ```sh
 docker compose exec -w /srv/sandboxer/laravel php composer test
 ```
 
-With local PHP, run `composer test` from this repository. Tests fake HedgeDoc HTTP
-responses; media tests use an isolated in-memory SQLite database and temporary
-uploads, so they also require `pdo_sqlite`. No live HedgeDoc data is changed.
-
-## Unused HedgeDoc images
-
-The optional `media:unused` and `media:cleanup` commands read **all** rows of
-HedgeDoc 1.x's quoted `Notes` table, including private and soft-deleted notes.
-Only current stored `content` is scanned; historical revisions are not included.
-The PostgreSQL connection uses a read-only, repeatable-read snapshot. The
-database account must have SELECT access to every note: do not use a role with
-row-level restrictions that hide private notes.
-
-Configure these variables in Profundarium's `.env`:
-
-```dotenv
-HEDGEDOC_PUBLIC_URL=https://notes.example.com
-HEDGEDOC_UPLOADS_PATH=/srv/hedgedoc/uploads
-HEDGEDOC_DB_HOST=database
-HEDGEDOC_DB_PORT=5432
-HEDGEDOC_DB_DATABASE=hedgedoc
-HEDGEDOC_DB_USERNAME=hedgedoc
-HEDGEDOC_DB_PASSWORD=your-database-password
-HEDGEDOC_DB_SCHEMA=public
-HEDGEDOC_DB_SSLMODE=prefer
-```
-
-`HEDGEDOC_PUBLIC_URL` is the public base URL (include any deployment subpath),
-independent of the internal HTTP fetch URL `HEDGEDOC_URL`. Files map to
-`<public-base>/uploads/<relative-file-path>`, matching HedgeDoc 1.x's filesystem
-upload backend. See [HedgeDoc configuration](https://docs.hedgedoc.org/configuration/).
-`HEDGEDOC_UPLOADS_PATH` must be an absolute directory accessible to the PHP
-process, with no symlinks or dot segments. Mount or share HedgeDoc's filesystem
-uploads at that location yourself; this application does not manage containers
-or mounts. Listing requires read/search permission throughout the tree;
-deletion requires write permission on the containing directories. Use a
-read-only mount when only listing. PostgreSQL must be reachable and `pdo_pgsql`
-installed (on Alpine, use the matching PHP package, for example
-`php85-pdo_pgsql` with PHP 8.5). Then run `php artisan config:clear`.
-
-```sh
-php artisan media:unused
-php artisan media:cleanup
-# Explicit unattended authorization:
-php artisan media:cleanup --no-interaction --force
-```
-
-Inside Sandboxer, prefix these commands with
-`docker compose exec -w /srv/sandboxer/laravel php` after configuring your local
-PHP image, uploads mount, and database access. These environment changes belong
-in your own local configuration.
-
-Example listing:
-
-```text
-Scanning HedgeDoc notes...
-Notes scanned: 248
-Images scanned: 137
-Unused images: 3
-Reclaimable: 6.4 MB
-https://notes.example.com/uploads/image-001.png
-https://notes.example.com/uploads/image-002.jpg
-https://notes.example.com/uploads/image-003.webp
-```
-
-**Cleanup permanently deletes files.** Review the URLs and back up uploads
-before answering the default-no confirmation. Non-interactive cleanup refuses
-deletion without `--force`. A fresh scan after confirmation skips files that
-became referenced or changed. Database, parsing, and enumeration failures abort
-cleanup; deletion failures return a nonzero status and identify failed URLs.
-Private note contents and database exception details are never printed.
-Bare `http://` and `https://` image placeholders are ignored silently because
-they cannot reference an uploaded file. Other rejected image references are
-logged at warning level through Laravel's configured logging channel. With the `single` channel, inspect `storage/logs/laravel.log`.
-The log includes the note ID, public note URL, and extracted image URL for debugging; keep logs private because URLs
-can contain private paths or tokens.
-
-Markdown inline, full/collapsed/shortcut reference images, HedgeDoc size
-suffixes, HTML `img src`, and HTML `srcset` are parsed with the existing
-CommonMark and HTML parsers. Matching handles absolute, protocol-relative,
-root-relative, and base-relative upload URLs, percent encoding, queries, and
-fragments. Other hosts and code examples are ignored. Matching conservatively
-preserves same-host references using a different HTTP(S) scheme or port,
-including URLs stored before a reverse-proxy change. Recursive enumeration
-includes hidden files and recognizes these extensions (case-insensitively):
-jpg, jpeg, png, gif, webp, svg, avif, bmp, ico, tif, tiff, apng. Non-image
-extensions are left alone; this is extension-based classification, not MIME
-validation. Symlinks anywhere in the upload tree abort scanning.
-
-References generated by JavaScript, CSS background URLs, HTML `base` overrides,
-custom Markdown plugins, external host aliases/CDNs, and images used only by
-historical revisions or other applications are not detected. Unsaved edits in
-HedgeDoc's memory are not visible in PostgreSQL. Save notes and pause editing,
-uploads, and other filesystem writers while cleaning up: the database snapshot
-cannot make filesystem changes atomic, and a narrow race remains between final
-path validation and unlink. Do not run cleanup against directories writable by
-untrusted concurrent processes. Review `media:unused` first if notes use any of
-these unsupported reference forms.
-
-## Repository contents
-
-Application code, static assets, configuration templates, tests, and
-`composer.lock` are versioned. Installed dependencies, local environment files,
-databases, logs, caches, and Sandboxer's development environment are excluded.
+Tests use fake HedgeDoc responses, temporary files, and in-memory SQLite
+(requires `pdo_sqlite`). They do not modify live HedgeDoc data.
 
 ## License
 
 Original Profundarium code is copyright (C) 2026 Jacob and licensed under
-**GPL-3.0-or-later**.
-
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-A PARTICULAR PURPOSE. See [LICENSE](LICENSE) for the GNU General Public License.
-
-This grant applies to original Profundarium code, not to third-party material.
-The adapted HedgeDoc CSS retains its AGPL-3.0 terms, Roboto retains OFL-1.1,
-and Composer dependencies retain their respective licenses. See
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and license details.
+[GPL-3.0-or-later](LICENSE). Third-party assets and dependencies retain their
+own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -4,21 +4,28 @@ services:
   # One-shot initializer: copies public files from the application image into
   # the shared volume, then exits. Rerun it when deploying a new image.
   assets-init:
-    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.1.0}
+    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.2.0}
     entrypoint: [/bin/sh, -ec]
     # Replace only the generated contents of this dedicated volume on each run.
     command:
       - find /export-public -mindepth 1 -maxdepth 1 -exec rm -rf {} +; cp -a /srv/profundarium/public/. /export-public/
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
     read_only: true
     volumes:
+      # Fresh volumes inherit this directory's ownership from the PHP image.
       - public:/export-public
     restart: "no"
 
   # Application runtime: runs PHP-FPM continuously and executes Laravel requests
   # forwarded by Nginx. Uses the same image version as assets-init.
   profundarium:
-    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.1.0}
+    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.2.0}
     restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
@@ -35,7 +42,11 @@ services:
   # requests to profundarium:9000. This is the only service exposing a host port.
   web:
     image: nginx:1.30.6-alpine
+    user: nginx
     restart: unless-stopped
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
     read_only: true
     # Use the example config directly without image entrypoint rewrites.
     entrypoint: [nginx, -e, stderr, -g, "daemon off;"]

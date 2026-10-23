@@ -1,3 +1,16 @@
+# Branch workflow
+
+- Work on the `development` branch. Push branch commits only to
+  `origin development`; never push directly to `main` or another branch.
+- Do not create temporary feature branches for ordinary work. If development
+  is not checked out, inspect the working tree before switching to it.
+- Main is updated by a pull request from development, merged by the maintainer.
+  Do not merge or push main unless the user explicitly overrides this policy.
+- Before every push, verify the checked-out branch and use an explicit target:
+  `git push origin development`. Never force-push.
+- Release tags follow the separate release authorization rules below. A normal
+  commit/push request does not authorize publishing a tag.
+
 # Release versioning
 
 Profundarium uses numbered container releases. `VERSION` contains the version
@@ -23,5 +36,5 @@ The human maintainer decides when to release. Create and push a release tag only
 when releasing is explicitly authorized; tag the tested commit intended for that
 release. If asked to ship a release, perform the version checks as part of it.
 
-The initial version 0.1.0 is being prepared and is not published merely because
-VERSION or the Compose example refers to it.
+A version in VERSION or the Compose example is not published until its release
+tag workflow succeeds.

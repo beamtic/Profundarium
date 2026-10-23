@@ -5,8 +5,8 @@ ARG APP_UID=1000
 ARG APP_GID=1000
 
 RUN apk add --no-cache \
-    php85 \
-    php85-fpm \
+    "php85>=8.5.12" \
+    "php85-fpm>=8.5.12" \
     fcgi
 
 # PHP extensions used by Laravel / Profundarium in production.
@@ -60,10 +60,14 @@ FROM runtime
 ENV LOG_CHANNEL=stderr \
     LARAVEL_STORAGE_PATH=/tmp/profundarium-storage
 COPY --from=build --chown=profundarium:profundarium /srv/profundarium /srv/profundarium
-RUN mkdir -p storage/framework/cache/data storage/framework/sessions \
+# Docker initializes fresh named volumes with this mountpoint ownership.
+# The non-root asset initializer can then populate /export-public without chown.
+RUN mkdir -p /export-public storage/framework/cache/data storage/framework/sessions \
         storage/framework/views storage/logs bootstrap/cache \
-    && chown -R profundarium:profundarium storage bootstrap/cache \
+    && chown -R profundarium:profundarium /export-public storage bootstrap/cache \
     && chmod 755 /usr/local/bin/php-fpm-healthcheck
+
+USER profundarium
 
 EXPOSE 9000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
