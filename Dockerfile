@@ -30,6 +30,7 @@ RUN apk add --no-cache \
     php85-zip \
     php85-pcntl \
     php85-bcmath \
+    php85-pdo_mysql \
     php85-pdo_pgsql \
     php85-pdo_sqlite
 

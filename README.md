@@ -115,3 +115,8 @@ Tests use fake HedgeDoc responses, temporary files, and in-memory SQLite
 Original Profundarium code is copyright (C) 2026 Jacob and licensed under
 [GPL-3.0-or-later](LICENSE). Third-party assets and dependencies retain their
 own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+The optional media commands support HedgeDoc databases on PostgreSQL, SQLite,
+and MySQL/MariaDB. Set `HEDGEDOC_DB_CONNECTION` and the corresponding database
+settings; see [database selection](DOCKER.md#database-selection). The runtime
+needs `pdo_pgsql`, `pdo_sqlite`, or `pdo_mysql` respectively.

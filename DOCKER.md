@@ -101,7 +101,7 @@ in your own Nginx configuration.
 
 ## Database selection
 
-The same image includes PostgreSQL and SQLite PDO drivers. PostgreSQL remains
+The same image includes PostgreSQL, MySQL/MariaDB, and SQLite PDO drivers. PostgreSQL remains
 the default. These settings select the existing HedgeDoc database used by the
 optional media commands; ordinary note rendering uses HEDGEDOC_URL.
 
@@ -115,6 +115,20 @@ HEDGEDOC_DB_DATABASE: hedgedoc
 HEDGEDOC_DB_USERNAME: hedgedoc
 HEDGEDOC_DB_PASSWORD: ${HEDGEDOC_DB_PASSWORD:?Set database password}
 ```
+
+For MySQL or MariaDB, use `mysql` (or `mariadb`) and port 3306:
+
+```yaml
+HEDGEDOC_DB_CONNECTION: mysql
+HEDGEDOC_DB_HOST: mariadb
+HEDGEDOC_DB_PORT: "3306"
+HEDGEDOC_DB_DATABASE: hedgedoc
+HEDGEDOC_DB_USERNAME: hedgedoc
+HEDGEDOC_DB_PASSWORD: ${HEDGEDOC_DB_PASSWORD:?Set database password}
+```
+
+The media scanner uses a read-only, repeatable-read transaction. The account
+must be able to select all rows from HedgeDoc's `Notes` table.
 
 For SQLite, point to the existing HedgeDoc SQLite file inside the container:
 
