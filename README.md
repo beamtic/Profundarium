@@ -127,6 +127,12 @@ In ordinary text, `(c)` becomes ©, `(r)` becomes ®, `(tm)` becomes ™,
 These replacements leave code, TeX, and link destinations unchanged.
 Escape the opening character (for example, `\(c)` or `\+-`) for literal text.
 
+Straight double and single quotation marks become curly quotes in ordinary
+text: `"quoted"` becomes “quoted” and `'quoted'` becomes ‘quoted’. Apostrophes
+in contractions become curly too (`don't` → don’t). Escape quotes with a
+backslash to keep them straight. Code, TeX, link destinations, and HTML
+attributes are preserved.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:
