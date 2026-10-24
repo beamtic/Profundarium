@@ -199,6 +199,16 @@ and permission from the video owner to embed the video. No API key is needed.
 Each player includes a direct video link. Printing and PDF exports show that
 link and its URL instead of the player.
 
+### Emoji
+
+Emoji shortcodes such as `:smile:`, `:smiley:`, `:cry:`, and `:wink:` become
+Unicode emoji. The bundled markdown-it-emoji 3.0.0 full mapping includes aliases
+such as `:+1:`. Names are case sensitive; unknown names remain literal.
+Code, TeX, link destinations, and HTML attributes are preserved. Escape the
+opening colon (`\:smile:`) for literal text. Emoticon shortcuts such as `:)`
+are not converted. No JavaScript, image downloads, or additional dependencies
+are required; emoji appearance depends on the device's fonts.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:

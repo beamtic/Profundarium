@@ -30,6 +30,14 @@ jsDelivr. MathJax is distributed under the Apache License 2.0; see the
 [upstream license](https://github.com/mathjax/MathJax/blob/4.0.0/LICENSE).
 MathJax assets are fetched by the browser and are not bundled in this repository.
 
+## Emoji mapping
+
+`resources/markdown/emoji.json` is converted from the full mapping in
+[markdown-it-emoji 3.0.0](https://github.com/markdown-it/markdown-it-emoji/blob/3.0.0/lib/data/full.mjs).
+To reproduce it, remove the leading comment and `export default` from that file
+and serialize the remaining object as JSON. The mapping is distributed under
+the MIT license, included in [licenses/markdown-it-emoji-MIT.txt](licenses/markdown-it-emoji-MIT.txt).
+
 ## PHP dependencies
 
 Laravel and the other Composer dependencies retain their respective licenses.
