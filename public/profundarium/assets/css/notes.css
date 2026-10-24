@@ -314,6 +314,21 @@ a {
     print-color-adjust: exact;
 }
 
+.note abbr[title] {
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: help;
+}
+
+.note .footnotes {
+    margin-top: 2em;
+}
+
+.note .footnote-ref,
+.note .footnote-backref {
+    text-decoration: none;
+}
+
 .note code {
     padding: 0.15em 0.35em;
     background: var(--code);

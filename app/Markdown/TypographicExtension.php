@@ -37,8 +37,8 @@ final class TypographicExtension implements ExtensionInterface, InlineParserInte
     {
         $cursor = $inlineContext->getCursor();
         $marker = $cursor->getCharacter();
-        // Leave double tildes to CommonMark's existing strikethrough processor.
-        if (str_starts_with($cursor->getRemainder(), '~~')) {
+        // Leave deletion and inline footnotes to CommonMark's own parsers.
+        if (str_starts_with($cursor->getRemainder(), '~~') || str_starts_with($cursor->getRemainder(), '^[')) {
             return false;
         }
 

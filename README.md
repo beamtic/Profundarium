@@ -133,6 +133,35 @@ in contractions become curly too (`don't` → don’t). Escape quotes with a
 backslash to keep them straight. Code, TeX, link destinations, and HTML
 attributes are preserved.
 
+### Footnotes and abbreviations
+
+Named footnotes support Markdown and indented continuation paragraphs. Inline
+footnotes use `^[text]`. References link to the footnotes below the note, with
+return links to each reference:
+
+```markdown
+A statement[^source], another reference[^source], and an inline note^[Extra detail].
+
+[^source]: A source with **Markdown**.
+
+    Another paragraph in the same footnote.
+```
+
+Abbreviation definitions apply throughout the note, including text before the
+definition. Matching is case sensitive and uses whole terms: `HTML` expands,
+while `xxxHTMLyyy` stays unchanged. Definitions themselves are hidden:
+
+```markdown
+This is an HTML abbreviation example.
+
+*[HTML]: Hyper Text Markup Language
+```
+
+The result uses `<abbr title="Hyper Text Markup Language">HTML</abbr>`, with a
+dotted underline and a browser tooltip. Code, TeX, image alternative text, and
+HTML attributes stay unchanged. Abbreviation definitions apply only to their
+own note; the first definition wins when a term is defined more than once.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:

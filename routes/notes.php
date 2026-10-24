@@ -7,12 +7,14 @@ use App\Markdown\MathExtension;
 use App\Markdown\TypographicExtension;
 use App\Markdown\SymbolReplacementExtension;
 use App\Markdown\SmartQuotesExtension;
+use App\Markdown\AbbreviationExtension;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
+use League\CommonMark\Extension\Footnote\FootnoteExtension;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -167,7 +169,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
                     'plaintext',
                 ],
             ],
-        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension()]);
+        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension(), new FootnoteExtension(), new AbbreviationExtension()]);
 
     $headings = [];
     $html = preg_replace_callback(
