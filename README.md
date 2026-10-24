@@ -103,6 +103,23 @@ MathJax 4.0.0 loads from jsDelivr only on pages containing math; rendering needs
 JavaScript and browser access to that CDN. Without it, the TeX remains visible.
 Wait for equations to finish rendering before printing or saving as PDF.
 
+### Extended emphasis
+
+HedgeDoc's extended emphasis syntax is supported:
+
+| Markdown | Result |
+| --- | --- |
+| `19^th^` | Superscript (`19<sup>th</sup>`) |
+| `H~2~O` | Subscript (`H<sub>2</sub>O`) |
+| `++Inserted text++` | Inserted text (`<ins>`) |
+| `==Marked text==` | Highlighted text (`<mark>`) |
+| `~~Deleted text~~` | Deleted text (`<del>`) |
+
+Single tildes produce subscript, including `lu~lala~`. Superscript and subscript
+contents cannot contain unescaped spaces; use `^two\ words^` when needed.
+Inserted and marked text can contain other inline Markdown. Code examples and
+escaped markers remain literal.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:
