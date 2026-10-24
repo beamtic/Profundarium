@@ -120,6 +120,13 @@ contents cannot contain unescaped spaces; use `^two\ words^` when needed.
 Inserted and marked text can contain other inline Markdown. Code examples and
 escaped markers remain literal.
 
+### Symbol replacements
+
+In ordinary text, `(c)` becomes ©, `(r)` becomes ®, `(tm)` becomes ™,
+`(p)` becomes §, and `+-` becomes ±. Letter case does not matter.
+These replacements leave code, TeX, and link destinations unchanged.
+Escape the opening character (for example, `\(c)` or `\+-`) for literal text.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:
