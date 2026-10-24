@@ -109,6 +109,10 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
 
     $robots = null;
     $openGraph = [];
+    $metadataTitle = null;
+    $description = null;
+    $language = 'en';
+    $direction = 'ltr';
     if (preg_match('/\A---\r?\n(.*?)\r?\n---(?:\r?\n|$)/s', $markdown, $frontMatter)) {
         try {
             $metadata = Yaml::parse($frontMatter[1]);
@@ -118,6 +122,19 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
         }
 
         if (is_array($metadata)) {
+            if (is_string($metadata['title'] ?? null) && trim($metadata['title']) !== '') {
+                $metadataTitle = trim($metadata['title']);
+            }
+            if (is_string($metadata['description'] ?? null)) {
+                $description = $metadata['description'];
+            }
+            if (is_string($metadata['lang'] ?? null)
+                && preg_match('/^[a-zA-Z]{2,8}(?:-[a-zA-Z0-9]{1,8})*$/D', $metadata['lang'])) {
+                $language = $metadata['lang'];
+            }
+            if (in_array($metadata['dir'] ?? null, ['ltr', 'rtl'], true)) {
+                $direction = $metadata['dir'];
+            }
             if (is_string($metadata['robots'] ?? null)) {
                 $robots = $metadata['robots'];
             }
@@ -256,7 +273,10 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
     $response = response()->view('note', [
         'html' => $html,
         'openGraph' => $openGraph,
-        'title' => trim($document->getElementsByTagName('h1')->item(0)?->textContent ?? ''),
+        'title' => $metadataTitle ?? trim($document->getElementsByTagName('h1')->item(0)?->textContent ?? ''),
+        'description' => $description,
+        'language' => $language,
+        'direction' => $direction,
     ], $status ?? 200);
 
     $response->header('X-Robots-Tag', $robots ?? 'noindex, nofollow');
