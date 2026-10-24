@@ -228,6 +228,21 @@ processes exceeding two seconds fall back to escaped plain code. There is no
 language auto-detection. HedgeDoc line-number suffixes (`=101`, `=+`) are not
 supported yet and fall back to plain code.
 
+### Blockquote tags
+
+HedgeDoc blockquotes accept name, time, and border-color tags:
+
+```markdown
+> A comment.
+> [name=Alice] [time=2026-10-24] [color=#907bf7]
+```
+
+Names and times appear as escaped attribution text; times are displayed as
+written, without date parsing. Colors accept three- or six-digit hex values,
+the 16 basic CSS color names, `orange`, and `rebeccapurple`. Each nested quote
+has its own tags; the last tag of each type wins. Unknown or invalid tags,
+tags outside quotes, and tags inside code or TeX stay literal.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:

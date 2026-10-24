@@ -458,3 +458,13 @@ a {
         padding: 0;
     }
 }
+
+.note .blockquote-attribution {
+    margin-block: 0.5em;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.note .blockquote-name {
+    font-weight: 500;
+}
