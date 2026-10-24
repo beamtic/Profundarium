@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\Extension\Footnote\FootnoteExtension;
+use League\CommonMark\Extension\DescriptionList\DescriptionListExtension;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -169,7 +170,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
                     'plaintext',
                 ],
             ],
-        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension(), new FootnoteExtension(), new AbbreviationExtension()]);
+        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension(), new FootnoteExtension(), new AbbreviationExtension(), new DescriptionListExtension()]);
 
     $headings = [];
     $html = preg_replace_callback(

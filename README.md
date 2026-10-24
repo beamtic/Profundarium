@@ -127,6 +127,11 @@ In ordinary text, `(c)` becomes ©, `(r)` becomes ®, `(tm)` becomes ™,
 These replacements leave code, TeX, and link destinations unchanged.
 Escape the opening character (for example, `\(c)` or `\+-`) for literal text.
 
+Three consecutive dots (`...`) or spaced dots (`. . .`) become an ellipsis (…).
+This uses CommonMark's ellipsis rules: longer runs are processed in groups of
+three, so `....` becomes `….`. Code, TeX, and link destinations stay unchanged.
+Escape the first dot (`\...`) to keep three literal dots.
+
 Straight double and single quotation marks become curly quotes in ordinary
 text: `"quoted"` becomes “quoted” and `'quoted'` becomes ‘quoted’. Apostrophes
 in contractions become curly too (`don't` → don’t). Escape quotes with a
@@ -161,6 +166,21 @@ The result uses `<abbr title="Hyper Text Markup Language">HTML</abbr>`, with a
 dotted underline and a browser tooltip. Code, TeX, image alternative text, and
 HTML attributes stay unchanged. Abbreviation definitions apply only to their
 own note; the first definition wins when a term is defined more than once.
+
+### Definition lists
+
+Definition lists use a term followed by a colon and whitespace:
+
+```markdown
+Term with **inline markup**
+:   A definition with Markdown.
+:   Another definition for the same term.
+
+    A continuation paragraph in the definition.
+```
+
+These render as `<dl>`, `<dt>`, and `<dd>` elements. HedgeDoc's alternate compact
+`~ Definition` marker is not supported; use `: Definition` instead.
 
 ### Note metadata
 

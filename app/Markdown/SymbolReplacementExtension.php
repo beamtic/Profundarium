@@ -4,6 +4,7 @@ namespace App\Markdown;
 
 use League\CommonMark\Environment\EnvironmentBuilderInterface;
 use League\CommonMark\Extension\ExtensionInterface;
+use League\CommonMark\Extension\SmartPunct\EllipsesParser;
 use League\CommonMark\Node\Inline\Text;
 use League\CommonMark\Parser\Inline\InlineParserInterface;
 use League\CommonMark\Parser\Inline\InlineParserMatch;
@@ -22,6 +23,7 @@ final class SymbolReplacementExtension implements ExtensionInterface, InlinePars
     public function register(EnvironmentBuilderInterface $environment): void
     {
         $environment->addInlineParser($this);
+        $environment->addInlineParser(new EllipsesParser());
     }
 
     public function getMatchDefinition(): InlineParserMatch
