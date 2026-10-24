@@ -298,6 +298,16 @@ a {
     border-color: #ebccd1;
 }
 
+.note .math-display {
+    overflow-x: auto;
+    overflow-wrap: normal;
+    margin-block: 1.1em;
+}
+
+.note .math-inline {
+    overflow-wrap: normal;
+}
+
 .note code {
     padding: 0.15em 0.35em;
     background: var(--code);

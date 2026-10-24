@@ -83,6 +83,26 @@ Each alert has a matching background, border, and text color when reading or
 printing. Alert contents can include paragraphs, lists, and other Markdown.
 Markers inside code examples remain literal text.
 
+### Mathematics
+
+MathJax renders HedgeDoc's `$...$` inline expressions and `$$...$$` display
+equations, including multiline TeX:
+
+```markdown
+Euler's identity: $e^{i\pi} + 1 = 0$.
+
+$$
+x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}
+$$
+```
+
+TeX is preserved without Markdown formatting. Code examples, escaped dollars
+(`\$`), and ordinary dollar amounts stay literal. Inline delimiters must touch
+their contents and the closing dollar must not be followed by a digit.
+MathJax 4.0.0 loads from jsDelivr only on pages containing math; rendering needs
+JavaScript and browser access to that CDN. Without it, the TeX remains visible.
+Wait for equations to finish rendering before printing or saving as PDF.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:

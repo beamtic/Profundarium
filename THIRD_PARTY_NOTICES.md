@@ -23,6 +23,13 @@ The locally hosted Roboto fonts are distributed under the SIL Open Font License
 [public/profundarium/assets/fonts/roboto/OFL.txt](public/profundarium/assets/fonts/roboto/OFL.txt), with source and format
 information in [public/profundarium/assets/fonts/roboto/README.txt](public/profundarium/assets/fonts/roboto/README.txt).
 
+## MathJax
+
+Pages containing mathematics load MathJax 4.0.0 and its SVG font data from
+jsDelivr. MathJax is distributed under the Apache License 2.0; see the
+[upstream license](https://github.com/mathjax/MathJax/blob/4.0.0/LICENSE).
+MathJax assets are fetched by the browser and are not bundled in this repository.
+
 ## PHP dependencies
 
 Laravel and the other Composer dependencies retain their respective licenses.
