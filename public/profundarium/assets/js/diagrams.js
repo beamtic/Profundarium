@@ -33,7 +33,8 @@
                 });
                 mermaidReady = true;
             }
-            const result = await window.mermaid.render(id, source);
+            // Layout must use the article container, not the browser viewport.
+            const result = await window.mermaid.render(id, source, target);
             target.innerHTML = result.svg;
         },
         async graphviz(source, target) {
@@ -44,10 +45,14 @@
         async abc(source, target) {
             await load('abcjs.js');
             const tunes = window.ABCJS.renderAbc(target, source, {
-                responsive: 'resize', add_classes: true,
+                add_classes: true,
                 staffwidth: 700, paddingtop: 10, paddingbottom: 10
             });
             if (!tunes.length || !target.querySelector('svg')) throw new Error('Invalid ABC notation.');
+            // abcjs reserves the original staff height on its output container.
+            // Let the shared SVG styling determine its height after scaling.
+            target.style.removeProperty('height');
+            target.style.removeProperty('overflow');
         },
         async sequence(source, target) {
             await Promise.all([load('underscore.js'), load('snap.svg.js'), load('webfont.js')]);
@@ -122,9 +127,7 @@
                     // abcjs uses an absolute-positioned SVG inside its own wrapper;
                     // the shared output container uses the SVG's natural dimensions.
                     svg.style.position = 'static';
-                    // Preserve Mermaid's readable natural size on narrow screens;
-                    // the container scrolls horizontally rather than shrinking labels.
-                    svg.style.maxWidth = type === 'mermaid' ? 'none' : '100%';
+                    svg.style.maxWidth = '100%';
                     svg.style.removeProperty('left');
                     svg.style.removeProperty('top');
                 }
