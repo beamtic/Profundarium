@@ -262,6 +262,42 @@ a {
     color: var(--muted);
 }
 
+.note .alert {
+    margin: 0 0 1.1em;
+    padding: 15px;
+    border: 1px solid;
+    border-radius: 4px;
+    print-color-adjust: exact;
+}
+
+.note .alert > :last-child {
+    margin-bottom: 0;
+}
+
+.note .alert-success {
+    color: #3c763d;
+    background: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.note .alert-info {
+    color: #31708f;
+    background: #d9edf7;
+    border-color: #bce8f1;
+}
+
+.note .alert-warning {
+    color: #8a6d3b;
+    background: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.note .alert-danger {
+    color: #a94442;
+    background: #f2dede;
+    border-color: #ebccd1;
+}
+
 .note code {
     padding: 0.15em 0.35em;
     background: var(--code);

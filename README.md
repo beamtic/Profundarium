@@ -69,6 +69,20 @@ Use your browser's print menu to print or save a note as PDF. Notes must be
 readable without signing in; Profundarium does not forward login credentials.
 The renderer preserves raw HTML, so use a trusted note source.
 
+### Alert areas
+
+HedgeDoc alert areas support `success`, `info`, `warning`, and `danger`:
+
+```markdown
+:::info
+This is a message with **Markdown** support.
+:::
+```
+
+Each alert has a matching background, border, and text color when reading or
+printing. Alert contents can include paragraphs, lists, and other Markdown.
+Markers inside code examples remain literal text.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:
