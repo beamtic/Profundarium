@@ -16,7 +16,6 @@ final class SymbolReplacementExtension implements ExtensionInterface, InlinePars
         '(c)' => '©',
         '(r)' => '®',
         '(tm)' => '™',
-        '(p)' => '§',
         '+-' => '±',
     ];
 
@@ -28,7 +27,7 @@ final class SymbolReplacementExtension implements ExtensionInterface, InlinePars
 
     public function getMatchDefinition(): InlineParserMatch
     {
-        return InlineParserMatch::regex('\\([cCrRpP]\\)|\\([tT][mM]\\)|\\+-');
+        return InlineParserMatch::regex('\\([cCrR]\\)|\\([tT][mM]\\)|\\+-');
     }
 
     public function parse(InlineParserContext $inlineContext): bool

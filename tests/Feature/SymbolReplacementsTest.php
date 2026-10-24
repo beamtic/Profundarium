@@ -10,7 +10,7 @@ class SymbolReplacementsTest extends TestCase
     public function test_all_requested_symbols_are_replaced_case_insensitively(): void
     {
         $response = $this->renderNote('(c) (C) (r) (R) (tm) (TM) (p) (P) +-');
-        $response->assertSee('<p>© © ® ® ™ ™ § § ±</p>', false);
+        $response->assertSee('<p>© © ® ® ™ ™ (p) (P) ±</p>', false);
     }
 
     public function test_replacements_work_in_emphasis_links_and_alerts(): void

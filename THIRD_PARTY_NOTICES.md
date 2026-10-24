@@ -25,10 +25,19 @@ information in [public/profundarium/assets/fonts/roboto/README.txt](public/profu
 
 ## MathJax
 
-Pages containing mathematics load MathJax 4.0.0 and its SVG font data from
-jsDelivr. MathJax is distributed under the Apache License 2.0; see the
-[upstream license](https://github.com/mathjax/MathJax/blob/4.0.0/LICENSE).
-MathJax assets are fetched by the browser and are not bundled in this repository.
+`public/profundarium/assets/vendor/mathjax/` contains MathJax 4.0.0's SVG
+bundle, supporting TeX/output/accessibility components, and speech data, plus
+the SVG data from `@mathjax/mathjax-newcm-font` 4.0.0 and the matching
+`mathjax-mhchem`, `mathjax-bbm`, `mathjax-bboldx`, and `mathjax-dsfont`
+font-extension packages (all 4.0.0). These are served locally,
+including dynamically loaded font data and TeX extensions.
+
+Sources: the versioned npm distributions
+[`mathjax@4.0.0`](https://www.npmjs.com/package/mathjax/v/4.0.0) and
+[`@mathjax/mathjax-newcm-font@4.0.0`](https://www.npmjs.com/package/@mathjax/mathjax-newcm-font/v/4.0.0).
+The font-extension distributions are also published under the `@mathjax` npm
+scope with the `-font-extension` suffix. All these packages declare Apache-2.0 licensing. The MathJax license is included at
+[public/profundarium/assets/vendor/mathjax/LICENSE](public/profundarium/assets/vendor/mathjax/LICENSE).
 
 ## Emoji mapping
 
@@ -52,3 +61,16 @@ Alpine's `py3-pygments` package for runtime highlighting.
 Laravel and the other Composer dependencies retain their respective licenses.
 `composer.lock` records their versions and license identifiers; Composer installs
 their license files alongside the packages in `vendor/`.
+
+## Diagram rendering
+
+`public/profundarium/assets/vendor/diagrams/` contains pinned browser builds
+of Mermaid, Viz.js (including Graphviz and Expat), abcjs, js-sequence-diagrams,
+flowchart.js, Underscore, Snap.svg, Raphael, Web Font Loader, and DOMPurify.
+`manifest.json` in that directory records versions and upstream sources;
+license files and bundled notices are retained alongside the scripts.
+
+These assets and their dependencies are served from Profundarium's own origin.
+Web Font Loader is used only to detect the locally hosted Roboto font, without
+external font-provider configuration. Diagram source remains visible if a
+renderer cannot load or rejects the input.

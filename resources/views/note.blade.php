@@ -13,7 +13,10 @@
     @endif
     @if (str_contains($html, 'mathjax-process'))
         <script src="/profundarium/assets/js/mathjax-config.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4.0.0/tex-svg.js"></script>
+        <script defer src="/profundarium/assets/vendor/mathjax/tex-svg.js"></script>
+    @endif
+    @if (str_contains($html, 'data-diagram='))
+        <script defer src="/profundarium/assets/js/diagrams.js"></script>
     @endif
 </head>
 <body>

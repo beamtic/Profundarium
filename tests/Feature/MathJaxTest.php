@@ -26,7 +26,8 @@ Inside an alert: $\sqrt{x}$
 :::
 MD);
         $response->assertSee('src="/profundarium/assets/js/mathjax-config.js"', false);
-        $response->assertSee('https://cdn.jsdelivr.net/npm/mathjax@4.0.0/tex-svg.js', false);
+        $response->assertSee('/profundarium/assets/vendor/mathjax/tex-svg.js', false);
+        $response->assertDontSee('cdn.jsdelivr.net', false);
         $response->assertSee('\(e^{i\pi} + 1 = 0\)', false);
         $response->assertSee('\(a_b_c + d*e*f\)', false);
         $response->assertSee('\[x &lt; y &amp; y &gt; z\]', false);
@@ -52,7 +53,7 @@ Escaped: \$x\$. Prices: $5 and $10. Unclosed: $x.
 
 Whitespace: $ x $.
 MD);
-        $response->assertDontSee('mathjax@', false);
+        $response->assertDontSee('/vendor/mathjax/', false);
         $response->assertDontSee('class="mathjax-process', false);
         $response->assertSee('<code>$x$</code>', false);
         $response->assertSee('$5 and $10', false);
