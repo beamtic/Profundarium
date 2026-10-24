@@ -422,7 +422,33 @@ a {
 
 }
 
+.note .video-embed {
+    display: block;
+    margin-block: 1em;
+    break-inside: avoid;
+}
+
+.note .video-embed iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+}
+
+.note .video-link {
+    display: block;
+    margin-top: 0.4em;
+}
+
 @media print {
+    .note .video-embed iframe {
+        display: none;
+    }
+
+    .note .video-link::after {
+        content: " (" attr(href) ")";
+    }
+
     body {
         padding: 0;
     }

@@ -182,6 +182,23 @@ Term with **inline markup**
 These render as `<dl>`, `<dt>`, and `<dd>` elements. HedgeDoc's alternate compact
 `~ Definition` marker is not supported; use `: Definition` instead.
 
+### Video embeds
+
+HedgeDoc YouTube and Vimeo tags render responsive, lazy-loaded video players:
+
+```text
+{%youtube aqz-KE-bpKQ %}
+{%vimeo 124148255 %}
+```
+
+Tags accept an 11-character YouTube ID or a positive numeric Vimeo ID.
+Malformed tags remain text; tags inside code and TeX are preserved.
+YouTube uses its privacy-enhanced `youtube-nocookie.com` player. Browsers
+contact the video provider to load players; playback requires internet access
+and permission from the video owner to embed the video. No API key is needed.
+Each player includes a direct video link. Printing and PDF exports show that
+link and its URL instead of the player.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:
