@@ -1,7 +1,11 @@
 # Profundarium PHP-FPM image
 
 The published image contains PHP-FPM, Profundarium, and production Composer
-dependencies. It does not contain Nginx or a process supervisor. PHP-FPM runs
+dependencies. Alpine's `py3-pygments` package and Python runtime provide
+server-side fenced-code highlighting. They require no compiler, glibc layer,
+or separate service. This increases the runtime image size compared with the
+previous PHP-only image. `PYGMENTS_ENABLED=false` disables highlighting but
+does not remove those installed packages. It does not contain Nginx or a process supervisor. PHP-FPM runs
 in the foreground on port 9000. This is FastCGI, not HTTP; do not publish that
 port to the internet. Logs go to stderr.
 

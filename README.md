@@ -209,6 +209,25 @@ opening colon (`\:smile:`) for literal text. Emoticon shortcuts such as `:)`
 are not converted. No JavaScript, image downloads, or additional dependencies
 are required; emoji appearance depends on the device's fonts.
 
+### Syntax highlighting
+
+Fenced code blocks with an explicit language (for example, `php`, `python`,
+`javascript`, or `bash`) are highlighted server-side with Pygments. A local
+light-theme stylesheet supplies colors for screen and print; no JavaScript or
+external requests are needed. Inline and unlabelled code stay plain.
+
+The Profundarium image includes Alpine's `py3-pygments` package. Other PHP
+installations need Pygments installed separately and `proc_open` enabled.
+Set `PYGMENTS_BINARY` to its executable path (default `/usr/bin/pygmentize`),
+or `PYGMENTS_ENABLED=false` to disable highlighting. The path is a single
+executable, not a shell command. Code is passed on stdin using an argument-array
+process invocation, without a shell or custom lexer loading.
+
+Unknown languages, missing executables, errors, blocks over 100,000 bytes, and
+processes exceeding two seconds fall back to escaped plain code. There is no
+language auto-detection. HedgeDoc line-number suffixes (`=101`, `=+`) are not
+supported yet and fall back to plain code.
+
 ### Note metadata
 
 Optional YAML front matter controls indexing and link previews:

@@ -1,0 +1,72 @@
+/* Pygments 2.20.0 default theme; scoped to highlighted code. See THIRD_PARTY_NOTICES.md. */
+.note .pygments .hll { background-color: #ffffcc }
+.note .pygments { background: #f8f8f8; }
+.note .pygments .c { color: #3D7B7B; font-style: italic } /* Comment */
+.note .pygments .err { border: 1px solid #F00 } /* Error */
+.note .pygments .k { color: #008000; font-weight: bold } /* Keyword */
+.note .pygments .o { color: #666 } /* Operator */
+.note .pygments .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.note .pygments .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.note .pygments .cp { color: #9C6500 } /* Comment.Preproc */
+.note .pygments .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.note .pygments .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.note .pygments .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.note .pygments .gd { color: #A00000 } /* Generic.Deleted */
+.note .pygments .ge { font-style: italic } /* Generic.Emph */
+.note .pygments .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.note .pygments .gr { color: #E40000 } /* Generic.Error */
+.note .pygments .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.note .pygments .gi { color: #008400 } /* Generic.Inserted */
+.note .pygments .go { color: #717171 } /* Generic.Output */
+.note .pygments .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.note .pygments .gs { font-weight: bold } /* Generic.Strong */
+.note .pygments .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.note .pygments .gt { color: #04D } /* Generic.Traceback */
+.note .pygments .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.note .pygments .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.note .pygments .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.note .pygments .kp { color: #008000 } /* Keyword.Pseudo */
+.note .pygments .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.note .pygments .kt { color: #B00040 } /* Keyword.Type */
+.note .pygments .m { color: #666 } /* Literal.Number */
+.note .pygments .s { color: #BA2121 } /* Literal.String */
+.note .pygments .na { color: #687822 } /* Name.Attribute */
+.note .pygments .nb { color: #008000 } /* Name.Builtin */
+.note .pygments .nc { color: #00F; font-weight: bold } /* Name.Class */
+.note .pygments .no { color: #800 } /* Name.Constant */
+.note .pygments .nd { color: #A2F } /* Name.Decorator */
+.note .pygments .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.note .pygments .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.note .pygments .nf { color: #00F } /* Name.Function */
+.note .pygments .nl { color: #767600 } /* Name.Label */
+.note .pygments .nn { color: #00F; font-weight: bold } /* Name.Namespace */
+.note .pygments .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.note .pygments .nv { color: #19177C } /* Name.Variable */
+.note .pygments .ow { color: #A2F; font-weight: bold } /* Operator.Word */
+.note .pygments .w { color: #BBB } /* Text.Whitespace */
+.note .pygments .mb { color: #666 } /* Literal.Number.Bin */
+.note .pygments .mf { color: #666 } /* Literal.Number.Float */
+.note .pygments .mh { color: #666 } /* Literal.Number.Hex */
+.note .pygments .mi { color: #666 } /* Literal.Number.Integer */
+.note .pygments .mo { color: #666 } /* Literal.Number.Oct */
+.note .pygments .sa { color: #BA2121 } /* Literal.String.Affix */
+.note .pygments .sb { color: #BA2121 } /* Literal.String.Backtick */
+.note .pygments .sc { color: #BA2121 } /* Literal.String.Char */
+.note .pygments .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.note .pygments .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.note .pygments .s2 { color: #BA2121 } /* Literal.String.Double */
+.note .pygments .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.note .pygments .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.note .pygments .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.note .pygments .sx { color: #008000 } /* Literal.String.Other */
+.note .pygments .sr { color: #A45A77 } /* Literal.String.Regex */
+.note .pygments .s1 { color: #BA2121 } /* Literal.String.Single */
+.note .pygments .ss { color: #19177C } /* Literal.String.Symbol */
+.note .pygments .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.note .pygments .fm { color: #00F } /* Name.Function.Magic */
+.note .pygments .vc { color: #19177C } /* Name.Variable.Class */
+.note .pygments .vg { color: #19177C } /* Name.Variable.Global */
+.note .pygments .vi { color: #19177C } /* Name.Variable.Instance */
+.note .pygments .vm { color: #19177C } /* Name.Variable.Magic */
+.note .pygments .il { color: #666 } /* Literal.Number.Integer.Long */
+.note .pygments { print-color-adjust: exact; }

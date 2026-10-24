@@ -10,6 +10,7 @@ use App\Markdown\SmartQuotesExtension;
 use App\Markdown\AbbreviationExtension;
 use App\Markdown\VideoEmbedExtension;
 use App\Markdown\EmojiExtension;
+use App\Markdown\PygmentsExtension;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -172,7 +173,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
                     'plaintext',
                 ],
             ],
-        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension(), new FootnoteExtension(), new AbbreviationExtension(), new DescriptionListExtension(), new VideoEmbedExtension(), new EmojiExtension()]);
+        ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension(), new FootnoteExtension(), new AbbreviationExtension(), new DescriptionListExtension(), new VideoEmbedExtension(), new EmojiExtension(), new PygmentsExtension()]);
 
     $headings = [];
     $html = preg_replace_callback(

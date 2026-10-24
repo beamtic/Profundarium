@@ -63,6 +63,6 @@ MD, 200, ['Content-Type' => 'text/markdown'])]);
         $this->assertSame('256', $images[6]->getAttribute('width'));
         $this->assertSame('256', $images[6]->getAttribute('height'));
         $response->assertSee('![Inline code](https://example.test/code.png =380x)', false);
-        $response->assertSee('![Fenced code](https://example.test/fence.png =380x)', false);
+        $this->assertStringContainsString('![Fenced code](https://example.test/fence.png =380x)', $document->getElementsByTagName('pre')[0]->textContent);
     }
 }

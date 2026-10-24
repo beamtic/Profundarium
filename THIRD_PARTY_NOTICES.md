@@ -38,6 +38,15 @@ To reproduce it, remove the leading comment and `export default` from that file
 and serialize the remaining object as JSON. The mapping is distributed under
 the MIT license, included in [licenses/markdown-it-emoji-MIT.txt](licenses/markdown-it-emoji-MIT.txt).
 
+## Pygments
+
+`public/profundarium/assets/css/pygments.css` is generated with Pygments 2.20.0:
+`pygmentize -S default -f html -a '.note .pygments'`. Unscoped line-number
+styles are omitted, and print color preservation is added.
+Pygments is distributed under the BSD license included in
+[licenses/Pygments-BSD.txt](licenses/Pygments-BSD.txt). The container installs
+Alpine's `py3-pygments` package for runtime highlighting.
+
 ## PHP dependencies
 
 Laravel and the other Composer dependencies retain their respective licenses.

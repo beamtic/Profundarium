@@ -7,7 +7,8 @@ ARG APP_GID=1000
 RUN apk add --no-cache \
     "php85>=8.5.12" \
     "php85-fpm>=8.5.12" \
-    fcgi
+    fcgi \
+    py3-pygments
 
 # PHP extensions used by Laravel / Profundarium in production.
 # OPcache is built into PHP 8.5.

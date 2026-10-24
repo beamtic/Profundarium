@@ -8,6 +8,9 @@
         <meta property="{{ $tag['property'] }}" content="{{ $tag['content'] }}">
     @endforeach
     <link rel="stylesheet" href="/profundarium/assets/css/notes.css">
+    @if (str_contains($html, 'class="pygments"'))
+        <link rel="stylesheet" href="/profundarium/assets/css/pygments.css">
+    @endif
     @if (str_contains($html, 'mathjax-process'))
         <script src="/profundarium/assets/js/mathjax-config.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4.0.0/tex-svg.js"></script>
