@@ -1,0 +1,74 @@
+{
+  "packages": [
+    {
+      "package": "mermaid",
+      "version": "12.2.0",
+      "url": "https://registry.npmjs.org/mermaid/-/mermaid-12.2.0.tgz",
+      "integrity": "sha512-w7nr/SFrLO7BaVTs3dQTvYSV6nYSBj0Yy9DjBhsIJtAcHqRzXSq4Pg32ujHZ/AdWsAMNEvvhbm5dt9E2tOiHzw=="
+    },
+    {
+      "package": "@viz-js/viz",
+      "version": "3.31.0",
+      "url": "https://registry.npmjs.org/@viz-js/viz/-/viz-3.31.0.tgz",
+      "integrity": "sha512-r7zlQdRvcwvIpjHGgs+KNWHeE/P5/Dq7k8ZAKaMCbZqomxCBJV78gVuQYaHzFVca+kB0mX0fMW9UFevCOBG50A=="
+    },
+    {
+      "package": "abcjs",
+      "version": "6.7.2",
+      "url": "https://registry.npmjs.org/abcjs/-/abcjs-6.7.2.tgz",
+      "integrity": "sha512-cHCyf8j0hAcxTuwZ9l2QznaSlLK1TD2s5oVw6Ig8Kfss6VfJKoNJ1kAzMBwa6DDWeyNl2JH7mN/U+MJ8MYbC5g=="
+    },
+    {
+      "package": "underscore",
+      "version": "1.13.8",
+      "url": "https://registry.npmjs.org/underscore/-/underscore-1.13.8.tgz",
+      "integrity": "sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ=="
+    },
+    {
+      "package": "snapsvg",
+      "version": "0.5.1",
+      "url": "https://registry.npmjs.org/snapsvg/-/snapsvg-0.5.1.tgz",
+      "integrity": "sha512-CjwWYsL7+CCk1vCk9BBKGYS4WJVDfJAOMWU+Zhzf8wf6pAm/xT34wnpaMPAgcgCNkxuU6OkQPPd8wGuRCY9aNw=="
+    },
+    {
+      "package": "raphael",
+      "version": "2.3.0",
+      "url": "https://registry.npmjs.org/raphael/-/raphael-2.3.0.tgz",
+      "integrity": "sha512-w2yIenZAQnp257XUWGni4bLMVxpUpcIl7qgxEgDIXtmSypYtlNxfXWpOBxs7LBTps5sDwhRnrToJrMUrivqNTQ=="
+    },
+    {
+      "package": "dompurify",
+      "version": "3.4.17",
+      "url": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.17.tgz",
+      "integrity": "sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w=="
+    },
+    {
+      "package": "js-sequence-diagrams",
+      "version": "2.0.1",
+      "url": "https://github.com/bramp/js-sequence-diagrams/tree/v2.0.1"
+    },
+    {
+      "package": "flowchart.js",
+      "version": "1.18.0",
+      "url": "https://github.com/adrai/flowchart.js/tree/v1.18.0"
+    },
+    {
+      "package": "webfontloader",
+      "version": "1.6.28",
+      "url": "https://registry.npmjs.org/webfontloader/-/webfontloader-1.6.28.tgz",
+      "integrity": "sha512-Egb0oFEga6f+nSgasH3E0M405Pzn6y3/9tOVanv/DLfa1YBIgcv90L18YyWnvXkRbIM17v5Kv6IT2N6g1x5tvQ=="
+    }
+  ],
+  "files": {
+    "abcjs.js": "3290ef44c918d5e882029d3a47ad3dd63c16c8819da5abe921f3d1e642b4f4f0",
+    "flowchart.js": "5b456e20b5c01d5c04d37747fb2aac3cf2364232e899ad84e7cd112b37571156",
+    "mermaid.js": "a8a6a6f805b074a8261a2825c86f99c8054acb3b35f50bb7e24a4f9f2c3c3b9f",
+    "purify.js": "cd37898f9782adf54820c413191b5691803f0f137c799d6edcfd38523b4c2c31",
+    "raphael.js": "4da6e9aca75e3576d27ac0962ccadc6d6483cd486901d70d3dee50e77ae7f588",
+    "sequence.js": "0d4a8864fa0ff8c5c081c0759507453e0b0d39279db0c0b62c9d9a7e8ebebc15",
+    "snap.svg.js": "a08f9e973fac226fa3a67f05fea12ca4aa0abde4dce6e29e14734d55ec5ee9df",
+    "underscore.js": "89e99999dfa83ee9fb88e58beb7820961dbfcf391cee2f361ffd4a3489309c69",
+    "viz.js": "c9e0b310f9883910e01c66054b48b7ff4be3d8695141116635e72b0af152692e",
+    "webfont.js": "e0ee294b5487df566aad23b603fd902535634cfa957be8e7620396515afb1047"
+  }
+}

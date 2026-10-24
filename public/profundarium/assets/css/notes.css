@@ -255,11 +255,97 @@ a {
     margin-bottom: 0;
 }
 
+.note dl {
+    margin: 0 0 1.25em;
+    font-size: 1.08rem;
+    line-height: 1.65;
+}
+
+.note dt {
+    margin-top: 0.75em;
+    font-weight: 700;
+}
+
+.note dd {
+    margin-inline-start: 1.65em;
+}
+
+.note dd > :last-child {
+    margin-bottom: 0;
+}
+
 .note blockquote {
     margin: 1.6em 0;
     padding: 0.3em 1.2em;
     border-left: 4px solid var(--line);
     color: var(--muted);
+}
+
+.note .alert {
+    margin: 0 0 1.1em;
+    padding: 15px;
+    border: 1px solid;
+    border-radius: 4px;
+    print-color-adjust: exact;
+}
+
+.note .alert > :last-child {
+    margin-bottom: 0;
+}
+
+.note .alert-success {
+    color: #3c763d;
+    background: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.note .alert-info {
+    color: #31708f;
+    background: #d9edf7;
+    border-color: #bce8f1;
+}
+
+.note .alert-warning {
+    color: #8a6d3b;
+    background: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.note .alert-danger {
+    color: #a94442;
+    background: #f2dede;
+    border-color: #ebccd1;
+}
+
+.note .math-display {
+    overflow-x: auto;
+    overflow-wrap: normal;
+    margin-block: 1.1em;
+}
+
+.note .math-inline {
+    overflow-wrap: normal;
+}
+
+.note mark {
+    background: #fff3a3;
+    color: inherit;
+    print-color-adjust: exact;
+}
+
+.note abbr[title] {
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: help;
+}
+
+.note .footnotes {
+    margin-top: 2em;
+}
+
+.note .footnote-ref,
+.note .footnote-backref {
+    text-decoration: none;
 }
 
 .note code {
@@ -306,22 +392,59 @@ a {
 .note table {
     width: 100%;
     margin: 1.5em 0;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #cbd8e6;
+    border-radius: 8px;
+    background: #ffffff;
     font-size: 0.98rem;
+    line-height: 1.6;
+    print-color-adjust: exact;
 }
 
 .note th,
 .note td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--line);
+    padding: 12px 16px;
+    border-bottom: 1px solid #dce5ee;
     text-align: left;
+    vertical-align: top;
 }
 
 .note th {
-    color: var(--muted);
-    font-size: 0.82rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    background: #e5eef8;
+    color: #234769;
+    border-bottom-color: #bdcfe1;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+}
+
+.note thead tr:first-child > :first-child {
+    border-top-left-radius: 7px;
+}
+
+.note thead tr:first-child > :last-child {
+    border-top-right-radius: 7px;
+}
+
+.note tbody tr:nth-child(odd) > td {
+    background: #ffffff;
+}
+
+.note tbody tr:nth-child(even) > td {
+    background: #f0f5fa;
+}
+
+.note tbody:last-child tr:last-child > * {
+    border-bottom: 0;
+}
+
+.note tbody:last-child tr:last-child > :first-child {
+    border-bottom-left-radius: 7px;
+}
+
+.note tbody:last-child tr:last-child > :last-child {
+    border-bottom-right-radius: 7px;
 }
 
 @media (max-width: 560px) {
@@ -336,7 +459,36 @@ a {
 
 }
 
+.note .video-embed {
+    display: block;
+    margin-block: 1em;
+    break-inside: avoid;
+}
+
+.note .video-embed iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+}
+
+.note .video-link {
+    display: none;
+}
+
 @media print {
+    .note .video-link {
+        display: block;
+    }
+
+    .note .video-embed iframe {
+        display: none;
+    }
+
+    .note .video-link::after {
+        content: " (" attr(href) ")";
+    }
+
     body {
         padding: 0;
     }
@@ -344,5 +496,81 @@ a {
     .note {
         width: 100%;
         padding: 0;
+    }
+}
+
+.note .blockquote-attribution {
+    margin-block: 0.5em;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.note .blockquote-name {
+    font-weight: 500;
+}
+
+.note .diagram {
+    margin: 1.5em 0;
+    break-inside: avoid;
+}
+
+.note .diagram-output {
+    overflow-x: auto;
+    text-align: center;
+}
+
+.note .diagram-output svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+}
+
+.note .diagram-error {
+    color: #8a4038;
+    margin-bottom: 0.5em;
+}
+
+@media print {
+    .note .diagram-output {
+        overflow: visible;
+    }
+
+    .note .diagram-output svg {
+        max-width: 100% !important;
+    }
+}
+
+.note .document-embed {
+    display: block;
+    margin-block: 1.5em;
+}
+
+.note .document-embed iframe {
+    display: block;
+    width: 100%;
+    height: 36rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+}
+
+.note .document-embed-gist iframe {
+    height: 28rem;
+}
+
+.note .document-link {
+    display: block;
+    margin-top: 0.5em;
+    font-size: 0.9rem;
+}
+
+@media print {
+    .note .document-embed iframe {
+        display: none;
+    }
+
+    .note .document-link::after {
+        content: " (" attr(href) ")";
     }
 }

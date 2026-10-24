@@ -41,6 +41,14 @@ HEDGEDOC_URL=https://notes.example.com
 `APP_DEBUG=false` on publicly accessible instances. If configuration is cached,
 run `php artisan config:clear` after changing settings.
 
+The container image includes Pygments for server-side syntax highlighting.
+For other installations, install Pygments and enable PHP's `proc_open`.
+`PYGMENTS_BINARY` defaults to `/usr/bin/pygmentize`; set `PYGMENTS_ENABLED=false`
+to disable it. Missing or failing Pygments falls back to plain code.
+MathJax and its supporting assets are hosted locally; math rendering requires
+JavaScript but no CDN access. Diagram renderers and their dependencies are
+also hosted locally and loaded only for notes containing diagram blocks.
+
 ### Using Sandboxer
 
 [Sandboxer](https://github.com/Turbulentarius/sandboxer) provides the separate
@@ -50,14 +58,14 @@ setup service preserves this application:
 ```sh
 git clone https://github.com/Turbulentarius/sandboxer.git
 cd sandboxer
-git clone https://github.com/beamtic/Profundarium.git www/laravel
+git clone https://github.com/beamtic/Profundarium.git www/profundarium
 docker compose up -d --build
-docker compose exec -w /srv/sandboxer/laravel php composer setup
+docker compose exec -w /srv/sandboxer/profundarium php composer setup
 ```
 
-Use a fresh `www/laravel` directory; do not overwrite existing work. Open
-`http://laravel.localhost/profundarium/`. In the application's `.env`, use
-`APP_URL=http://laravel.localhost` and `HEDGEDOC_URL=http://hedgedoc:3000`.
+Use a fresh `www/profundarium` directory; do not overwrite existing work. Open
+`http://hedgedoc.localhost/profundarium/`. In the application's `.env`, use
+`APP_URL=http://hedgedoc.localhost` and `HEDGEDOC_URL=http://hedgedoc:3000`.
 
 ## Usage
 
@@ -99,12 +107,17 @@ These need database access and an uploads mount. Read [MEDIA.md](MEDIA.md) for
 configuration, supported references, and cleanup limitations before using them.
 Cleanup permanently deletes files.
 
+The optional media commands support HedgeDoc databases on PostgreSQL, SQLite,
+and MySQL/MariaDB. Set `HEDGEDOC_DB_CONNECTION` and the corresponding database
+settings; see [database selection](DOCKER.md#database-selection). The runtime
+needs `pdo_pgsql`, `pdo_sqlite`, or `pdo_mysql` respectively.
+
 ## Tests
 
 Run `composer test`, or from Sandboxer's repository root:
 
 ```sh
-docker compose exec -w /srv/sandboxer/laravel php composer test
+docker compose exec -w /srv/sandboxer/profundarium php composer test
 ```
 
 Tests use fake HedgeDoc responses, temporary files, and in-memory SQLite
@@ -115,8 +128,3 @@ Tests use fake HedgeDoc responses, temporary files, and in-memory SQLite
 Original Profundarium code is copyright (C) 2026 Jacob and licensed under
 [GPL-3.0-or-later](LICENSE). Third-party assets and dependencies retain their
 own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-
-The optional media commands support HedgeDoc databases on PostgreSQL, SQLite,
-and MySQL/MariaDB. Set `HEDGEDOC_DB_CONNECTION` and the corresponding database
-settings; see [database selection](DOCKER.md#database-selection). The runtime
-needs `pdo_pgsql`, `pdo_sqlite`, or `pdo_mysql` respectively.

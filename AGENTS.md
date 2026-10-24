@@ -38,3 +38,13 @@ release. If asked to ship a release, perform the version checks as part of it.
 
 A version in VERSION or the Compose example is not published until its release
 tag workflow succeeds.
+
+# Browser assets and privacy
+
+- Serve runtime scripts, styles, fonts, workers, and other library assets from
+  Profundarium's own origin. Include dynamically loaded dependencies.
+- Do not introduce external CDN dependencies or fallbacks without explicit
+  developer permission. Downloading upstream assets during development is
+  permitted; browser requests to an external CDN require permission.
+- Vendor pinned distributions with their license notices and source/version
+  metadata. Verify new browser integrations with external network access blocked.
