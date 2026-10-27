@@ -180,8 +180,7 @@ and require the workflow checks before merging if failed builds should block mer
 
 ## Preparing a release
 
-`VERSION` records the release being prepared. The release being prepared is
-`0.3.0`; references in the sample become usable after that release is published.
+`VERSION` records the release being prepared. The release being prepared is `0.4.1`; references in the sample become usable after that release is published.
 Both sample image references must match VERSION. CI checks this and rejects
 release tags that do not match it.
 
