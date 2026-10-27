@@ -14,6 +14,7 @@ use App\Markdown\EmojiExtension;
 use App\Markdown\PygmentsExtension;
 use App\Markdown\DiagramExtension;
 use App\Markdown\BlockquoteTagsExtension;
+use App\Markdown\NoteHtmlSanitizer;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -172,6 +173,7 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
 
     $html = Str::markdown($markdown, [
             'html_input' => 'allow',
+            'allow_unsafe_links' => false,
             'renderer' => [
                 'soft_break' => "<br>\n",
             ],
@@ -186,7 +188,6 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
                     'title',
                     'textarea',
                     'xmp',
-                    'iframe',
                     'noembed',
                     'noframes',
                     'script',
@@ -194,6 +195,8 @@ Route::get('/profundarium/{note?}', function (Request $request, ?string $note = 
                 ],
             ],
         ], [new HeadingPermalinkExtension(), new SizedImageExtension(), new EmDashExtension(), new AlertExtension(), new MathExtension(), new TypographicExtension(), new SymbolReplacementExtension(), new SmartQuotesExtension(), new FootnoteExtension(), new AbbreviationExtension(), new DescriptionListExtension(), new VideoEmbedExtension(), new EmojiExtension(), new PygmentsExtension(), new BlockquoteTagsExtension(), new DiagramExtension(), new DocumentEmbedExtension()]);
+
+    $html = app(NoteHtmlSanitizer::class)->sanitize($html);
 
     $headings = [];
     $html = preg_replace_callback(
