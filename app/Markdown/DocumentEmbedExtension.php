@@ -64,7 +64,11 @@ final class DocumentEmbedExtension implements ExtensionInterface, InlineParserIn
     public function render(Node $node, ChildNodeRendererInterface $childRenderer): \Stringable
     {
         DocumentEmbed::assertInstanceOf($node);
-        $gist = $node->type === 'gist';
+        if (! $node instanceof DocumentEmbed) {
+            throw new \LogicException('Expected a DocumentEmbed node.');
+        }
+        $type = $node->getType();
+        $gist = $type === 'gist';
         $url = $gist ? 'https://gist.github.com/' . $node->getLiteral() : $node->getLiteral();
         $attributes = [
             'title' => $gist ? 'GitHub Gist ' . $node->getLiteral() : 'PDF document',
@@ -75,20 +79,26 @@ final class DocumentEmbedExtension implements ExtensionInterface, InlineParserIn
             // GitHub's document.write embed runs only in an opaque-origin frame,
             // never with access to Profundarium's DOM, storage, or navigation.
             $attributes['sandbox'] = 'allow-scripts';
-            $policy = "default-src 'none'; script-src https://gist.github.com; style-src 'unsafe-inline' https://github.githubassets.com https://gist.github.com; img-src data: https://gist.github.com https://*.githubusercontent.com; base-uri 'none'";
-            $attributes['srcdoc'] = '<!DOCTYPE html><html><head><meta charset="utf-8">'
-                . '<meta name="referrer" content="no-referrer">'
-                . '<meta http-equiv="Content-Security-Policy" content="' . htmlspecialchars($policy, ENT_QUOTES, 'UTF-8') . '">'
-                . '<style>body{margin:0}.gist .gist-data{max-height:none}</style>'
-                . '</head><body><script src="' . $url . '.js"></script></body></html>';
+            $attributes['srcdoc'] = self::gistDocument($node->getLiteral());
         } else {
-            // Browser PDF viewers can be blocked by iframe sandboxing.
+            // The note sanitizer isolates document frames from the parent page.
             $attributes['src'] = $url;
         }
         $frame = new HtmlElement('iframe', $attributes, '');
         $link = new HtmlElement('a', ['class' => 'document-link', 'href' => $url], $gist ? 'Open Gist' : 'Open PDF');
 
-        return new HtmlElement('span', ['class' => 'document-embed document-embed-' . $node->type], $frame . $link);
+        return new HtmlElement('span', ['class' => 'document-embed document-embed-' . $type], $frame . $link);
+    }
+
+    public static function gistDocument(string $target): string
+    {
+        $policy = "default-src 'none'; script-src https://gist.github.com; style-src 'unsafe-inline' https://github.githubassets.com https://gist.github.com; img-src data: https://gist.github.com https://*.githubusercontent.com; base-uri 'none'";
+
+        return '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<meta name="referrer" content="no-referrer">'
+            . '<meta http-equiv="Content-Security-Policy" content="' . htmlspecialchars($policy, ENT_QUOTES, 'UTF-8') . '">'
+            . '<style>body{margin:0}.gist .gist-data{max-height:none}</style>'
+            . '</head><body><script src="https://gist.github.com/' . $target . '.js"></script></body></html>';
     }
 }
 
@@ -97,5 +107,10 @@ final class DocumentEmbed extends AbstractStringContainer
     public function __construct(string $target, public readonly string $type)
     {
         parent::__construct($target);
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
     }
 }

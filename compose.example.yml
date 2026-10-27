@@ -4,7 +4,7 @@ services:
   # One-shot initializer: copies public files from the application image into
   # the shared volume, then exits. Rerun it when deploying a new image.
   assets-init:
-    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.4.0}
+    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.4.1}
     entrypoint: [/bin/sh, -ec]
     # Replace only the generated contents of this dedicated volume on each run.
     command:
@@ -21,7 +21,7 @@ services:
   # Application runtime: runs PHP-FPM continuously and executes Laravel requests
   # forwarded by Nginx. Uses the same image version as assets-init.
   profundarium:
-    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.4.0}
+    image: ${PROFUNDARIUM_IMAGE:-ghcr.io/beamtic/profundarium:0.4.1}
     restart: unless-stopped
     cap_drop: [ALL]
     security_opt:

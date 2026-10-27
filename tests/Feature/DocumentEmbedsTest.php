@@ -24,7 +24,8 @@ MD);
         $this->assertStringContainsString('Content-Security-Policy', $frames[0]->getAttribute('srcdoc'));
         $this->assertSame('https://pdfobject.com/pdf/sample-3pp.pdf', $frames[1]->getAttribute('src'));
         $this->assertSame('/uploads/local.pdf?download=0&view=1', $frames[2]->getAttribute('src'));
-        $this->assertFalse($frames[1]->hasAttribute('sandbox'));
+        $this->assertSame('allow-scripts', $frames[1]->getAttribute('sandbox'));
+        $this->assertSame('allow-scripts', $frames[2]->getAttribute('sandbox'));
         foreach ($frames as $frame) {
             $this->assertSame('no-referrer', $frame->getAttribute('referrerpolicy'));
             $this->assertSame('lazy', $frame->getAttribute('loading'));
